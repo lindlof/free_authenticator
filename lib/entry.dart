@@ -1,3 +1,4 @@
+import 'package:free_authenticator/keychain_helper.dart';
 
 class Entry {
 
@@ -6,20 +7,26 @@ class Entry {
   static final columnName = 'name';
   static final columnKey = 'key';
 
+  final keychain = KeychainHelper.instance;
+
   String name;
   String key;
 
   Entry(this.name, this.key);
 
-  Entry.fromMap(Map<String, dynamic> map) {
-    this.name = map[columnName];
-    this.key = map[columnKey];
+  static Future<Entry> fromDbFormat(Map<String, dynamic> map) async {
+    print("Entry from map: " + map.values.join(", "));
+    final keychain = KeychainHelper.instance;
+    var name = await keychain.decrypt(map[columnName]);
+    if (name == null) name = "Decryption error";
+    final key = await keychain.decrypt(map[columnKey]);
+    return Entry(name, key);
   }
 
-  toMap() {
+  Future<Map<String, dynamic>> toDbFormat() async {
     Map<String, dynamic> map = {
-      Entry.columnName : this.name,
-      Entry.columnKey  : this.key,
+      Entry.columnName : await keychain.encrypt(this.name),
+      Entry.columnKey  : await keychain.encrypt(this.key),
     };
     return map;
   }

@@ -59,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final db = await dbFuture;
     final mapItems = await db.query(Entry.table);
     if (mapItems.isNotEmpty) {
-      List<Entry> entries = mapItems.map((e) => Entry.fromMap(e)).toList();
+      var fEntries = mapItems.map((e) => Entry.fromDbFormat(e)).toList();
+      var entries = await Future.wait(fEntries);
       setState(() {
         this.entries.addAll(entries);
       });
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () async {
                   final entry = Entry(nameInput.text, keyInput.text);
                   final db = await dbFuture;
-                  final id = await db.insert(Entry.table, entry.toMap());
+                  final id = await db.insert(Entry.table, await entry.toDbFormat());
                   print('inserted row id: $id');
 
                   setState(() {
