@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:free_authenticator/database_helper.dart';
+import 'package:free_authenticator/entry.dart';
 
 void main() => runApp(MyApp());
 
@@ -44,27 +46,59 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  TextEditingController nameInput = TextEditingController();
   TextEditingController keyInput = TextEditingController();
-  final keys = <String>[];
+  final entries = <Entry>[];
+  final dbFuture = DatabaseHelper.instance.database;
+
+  _MyHomePageState() {
+    loadEntries();
+  }
+
+  loadEntries() async {
+    final db = await dbFuture;
+    final mapItems = await db.query(Entry.table);
+    if (mapItems.isNotEmpty) {
+      List<Entry> entries = mapItems.map((e) => Entry.fromMap(e)).toList();
+      setState(() {
+        this.entries.addAll(entries);
+      });
+    }
+  }
 
   _displayDialog(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('TextField in Dialog'),
-            content: TextField(
-              controller: keyInput,
-              decoration: InputDecoration(hintText: "TextField in Dialog"),
+            title: Text('Enter a key'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  controller: nameInput,
+                  decoration: InputDecoration(hintText: "Name"),
+                ),
+                TextField(
+                  controller: keyInput,
+                  decoration: InputDecoration(hintText: "Key"),
+                ),
+              ],
             ),
             actions: <Widget>[
               new FlatButton(
                 child: new Text('Ok'),
-                onPressed: () {
+                onPressed: () async {
+                  final entry = Entry(nameInput.text, keyInput.text);
+                  final db = await dbFuture;
+                  final id = await db.insert(Entry.table, entry.toMap());
+                  print('inserted row id: $id');
+
                   setState(() {
-                    keys.add(keyInput.text);
-                    keyInput.text = "";
+                    entries.add(entry);
                   });
+                  nameInput.text = "";
+                  keyInput.text = "";
                   Navigator.of(context).pop();
                 },
               ),
@@ -97,11 +131,12 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: ListView.builder(
-          itemCount: keys.length,
+          itemCount: entries.length,
           itemBuilder: (context, int) {
+            var entry = entries[int];
             return ListTile(
               leading: Icon(Icons.vpn_key),
-              title: Text(keys[int]),
+              title: Text(entry.name),
             );
           },
         ),
