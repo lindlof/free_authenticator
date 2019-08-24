@@ -32,7 +32,7 @@ class DatabaseHelper {
           CREATE TABLE ${Entry.table} (
             ${Entry.columnId} INTEGER PRIMARY KEY,
             ${Entry.columnName} TEXT NOT NULL,
-            ${Entry.columnKey} TEXT NOT NULL
+            ${Entry.columnSecret} TEXT NOT NULL
           )
           ''');
   }

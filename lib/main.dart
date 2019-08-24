@@ -47,7 +47,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController nameInput = TextEditingController();
-  TextEditingController keyInput = TextEditingController();
+  TextEditingController secretInput = TextEditingController();
   final entries = <Entry>[];
   final dbFuture = DatabaseHelper.instance.database;
 
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Enter a key'),
+            title: Text('Enter a secret'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -81,8 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   decoration: InputDecoration(hintText: "Name"),
                 ),
                 TextField(
-                  controller: keyInput,
-                  decoration: InputDecoration(hintText: "Key"),
+                  controller: secretInput,
+                  decoration: InputDecoration(hintText: "Secret"),
                 ),
               ],
             ),
@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               new FlatButton(
                 child: new Text('Ok'),
                 onPressed: () async {
-                  final entry = Entry(nameInput.text, keyInput.text);
+                  final entry = Entry(nameInput.text, secretInput.text);
                   final db = await dbFuture;
                   final id = await db.insert(Entry.table, await entry.toDbFormat());
                   print('inserted row id: $id');
@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     entries.add(entry);
                   });
                   nameInput.text = "";
-                  keyInput.text = "";
+                  secretInput.text = "";
                   Navigator.of(context).pop();
                 },
               ),
