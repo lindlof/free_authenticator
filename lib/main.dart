@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/database_helper.dart';
+import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
-import 'package:free_authenticator/totp.dart';
 
 void main() => runApp(MyApp());
 
@@ -48,15 +48,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController nameInput = TextEditingController();
-  TextEditingController secretInput = TextEditingController();
   final entries = <Entry>[];
 
   _MyHomePageState() {
-    loadEntries();
+    _loadEntries();
   }
 
-  loadEntries() async {
+  _loadEntries() async {
     final db = await DatabaseHelper.database;
     final mapItems = await db.query(EntryBase.table);
     if (mapItems.isNotEmpty) {
@@ -68,49 +66,19 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  _displayDialog(BuildContext context) async {
+  _createEntry(BuildContext context) async {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Enter a secret'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextField(
-                  controller: nameInput,
-                  decoration: InputDecoration(hintText: "Name"),
-                ),
-                TextField(
-                  controller: secretInput,
-                  decoration: InputDecoration(hintText: "Secret"),
-                ),
-              ],
-            ),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('Ok'),
-                onPressed: () async {
-                  final entry = TOTP(nameInput.text, secretInput.text);
-                  final db = await DatabaseHelper.database;
-                  final id = await db.insert(EntryBase.table, await entry.toDbFormat());
-                  print('inserted row id: $id');
-
-                  setState(() {
-                    entries.add(entry);
-                  });
-                  nameInput.text = "";
-                  secretInput.text = "";
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
+          return CreateEntry(
+            onCreate: (Entry entry) async {
+              final db = await DatabaseHelper.database;
+              final id = await db.insert(EntryBase.table, await entry.toDbFormat());
+              print('inserted row id: $id');
+              setState(() {
+                entries.add(entry);
+              });
+            }
           );
         });
   }
@@ -144,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () { _displayDialog(context); },
+        onPressed: () { _createEntry(context); },
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
