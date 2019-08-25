@@ -1,5 +1,5 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/entry_base.dart';
 
 class DatabaseHelper {
   
@@ -29,9 +29,10 @@ class DatabaseHelper {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-          CREATE TABLE ${Entry.table} (
-            ${Entry.columnId} INTEGER PRIMARY KEY,
-            ${Entry.columnData} TEXT NOT NULL
+          CREATE TABLE ${EntryBase.table} (
+            ${EntryBase.columnId} INTEGER PRIMARY KEY,
+            ${EntryBase.columnType} INTEGER NOT NULL,
+            ${EntryBase.columnData} TEXT NOT NULL
           );
           ''');
   }

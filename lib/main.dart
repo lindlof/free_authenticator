@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/database_helper.dart';
+import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/totp.dart';
 
 void main() => runApp(MyApp());
 
@@ -57,9 +59,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadEntries() async {
     final db = await dbFuture;
-    final mapItems = await db.query(Entry.table);
+    final mapItems = await db.query(EntryBase.table);
     if (mapItems.isNotEmpty) {
-      var fEntries = mapItems.map((e) => Entry.fromDbFormat(e)).toList();
+      var fEntries = mapItems.map((e) => EntryBase.fromDbFormat(e)).toList();
       var entries = await Future.wait(fEntries);
       setState(() {
         this.entries.addAll(entries);
@@ -90,9 +92,9 @@ class _MyHomePageState extends State<MyHomePage> {
               new FlatButton(
                 child: new Text('Ok'),
                 onPressed: () async {
-                  final entry = Entry(nameInput.text, secretInput.text);
+                  final entry = TOTP(nameInput.text, secretInput.text);
                   final db = await dbFuture;
-                  final id = await db.insert(Entry.table, await entry.toDbFormat());
+                  final id = await db.insert(EntryBase.table, await entry.toDbFormat());
                   print('inserted row id: $id');
 
                   setState(() {
