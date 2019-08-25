@@ -31,9 +31,8 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE ${Entry.table} (
             ${Entry.columnId} INTEGER PRIMARY KEY,
-            ${Entry.columnName} TEXT NOT NULL,
-            ${Entry.columnSecret} TEXT NOT NULL
-          )
+            ${Entry.columnData} TEXT NOT NULL
+          );
           ''');
   }
 }
