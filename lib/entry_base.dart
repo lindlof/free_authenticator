@@ -14,8 +14,6 @@ class EntryBase {
   static final dataName = 'name';
   static final dataSecret = 'secret';
 
-  final keychain = KeychainHelper.instance;
-
   String name;
   String secret;
 
@@ -23,8 +21,7 @@ class EntryBase {
 
   static Future<Entry> fromDbFormat(Map<String, dynamic> map) async {
     print("Entry from map: " + map.values.join(", "));
-    final keychain = KeychainHelper.instance;
-    final data = await keychain.decrypt(map[columnData]);
+    final data = await KeychainHelper.decrypt(map[columnData]);
 
     Map entry = jsonDecode(data);
     var name = entry[EntryBase.dataName];
@@ -42,7 +39,7 @@ class EntryBase {
       EntryBase.dataName : this.name,
       EntryBase.dataSecret  : this.secret,
     };
-    var data = await keychain.encrypt(jsonEncode(dataMap));
+    var data = await KeychainHelper.encrypt(jsonEncode(dataMap));
 
     Map<String, dynamic> map = {
       EntryBase.columnType : type,

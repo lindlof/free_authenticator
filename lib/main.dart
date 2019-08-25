@@ -51,14 +51,13 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController secretInput = TextEditingController();
   final entries = <Entry>[];
-  final dbFuture = DatabaseHelper.instance.database;
 
   _MyHomePageState() {
     loadEntries();
   }
 
   loadEntries() async {
-    final db = await dbFuture;
+    final db = await DatabaseHelper.database;
     final mapItems = await db.query(EntryBase.table);
     if (mapItems.isNotEmpty) {
       var fEntries = mapItems.map((e) => EntryBase.fromDbFormat(e)).toList();
@@ -93,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: new Text('Ok'),
                 onPressed: () async {
                   final entry = TOTP(nameInput.text, secretInput.text);
-                  final db = await dbFuture;
+                  final db = await DatabaseHelper.database;
                   final id = await db.insert(EntryBase.table, await entry.toDbFormat());
                   print('inserted row id: $id');
 

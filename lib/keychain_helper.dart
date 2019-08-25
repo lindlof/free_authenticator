@@ -23,14 +23,14 @@ class KeychainHelper {
     return newKey;
   }
 
-  encrypt(String data) async {
-    String key = await this._getKey();
+  static encrypt(String data) async {
+    String key = await KeychainHelper.instance._getKey();
     return await cryptor.encrypt(data, key);
   }
 
-  decrypt(String encrypted) async {
+  static decrypt(String encrypted) async {
     try {
-      String key = await this._getKey();
+      String key = await KeychainHelper.instance._getKey();
       return await cryptor.decrypt(encrypted, key);
     } on MacMismatchException {
       print("Unable to decrypt data (wrong key or forged data)");
