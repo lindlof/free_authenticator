@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
             var entry = entries[int];
             return ListTile(
               leading: Icon(Icons.vpn_key),
-              title: Text(entry.name),
+              title: Text(entry.name + " " + entry.genPassword()),
             );
           },
         ),
