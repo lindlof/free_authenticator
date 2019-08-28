@@ -1,4 +1,3 @@
-
 abstract class DatabaseEntry {
   static final table = 'entry';
   static final columnId = 'id';
