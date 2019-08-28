@@ -1,5 +1,3 @@
-
-
 abstract class Entry {
   Future<Map<String, dynamic>> toDbFormat();
   int get type;

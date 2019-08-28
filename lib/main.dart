@@ -3,7 +3,8 @@ import 'package:free_authenticator/database_helper.dart';
 import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
-import 'package:free_authenticator/timer.dart';
+import 'package:free_authenticator/timed_entry.dart';
+import 'package:free_authenticator/widget/entry/timed_password.dart';
 
 void main() => runApp(MyApp());
 
@@ -105,10 +106,10 @@ class _MyHomePageState extends State<MyHomePage> {
           itemCount: entries.length,
           itemBuilder: (context, int) {
             var entry = entries[int];
-            return ListTile(
-              leading: Timer(interval: 30000),
-              title: Text(entry.name + " " + entry.genPassword()),
-            );
+            if (entry.type == EntryBase.typeTotp) {
+              return TimedPassword(entry: entry as TimedEntry);
+            }
+            return null;
           },
         ),
       ),
