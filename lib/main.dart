@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_authenticator/database_entry.dart';
 import 'package:free_authenticator/database_helper.dart';
 import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
@@ -58,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _loadEntries() async {
     final db = await DatabaseHelper.database;
-    final mapItems = await db.query(EntryBase.table);
+    final mapItems = await db.query(DatabaseEntry.table);
     if (mapItems.isNotEmpty) {
       var fEntries = mapItems.map((e) => EntryBase.fromDbFormat(e)).toList();
       var entries = await Future.wait(fEntries);
@@ -75,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return CreateEntry(
             onCreate: (Entry entry) async {
               final db = await DatabaseHelper.database;
-              final id = await db.insert(EntryBase.table, await entry.toDbFormat());
+              final id = await db.insert(DatabaseEntry.table, await entry.toDbFormat());
               print('inserted row id: $id');
               setState(() {
                 entries.add(entry);
@@ -106,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemCount: entries.length,
           itemBuilder: (context, int) {
             var entry = entries[int];
-            if (entry.type == EntryBase.typeTotp) {
+            if (entry.type == DatabaseEntry.typeTotp) {
               return TimedPassword(entry: entry as TimedEntry);
             }
             return null;
