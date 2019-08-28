@@ -33,8 +33,7 @@ class _TimedPassword extends State<TimedPassword> {
     });
 
     var now = new DateTime.now();
-    var ms = now.second * 1000 + now.millisecond;
-    if (ms > timeStep) ms = ms - timeStep;
+    var ms = (now.second * 1000 + now.millisecond) % timeStep;
     new Future.delayed(Duration(milliseconds: timeStep - ms), () {
       resetState();
     });
