@@ -1,11 +1,12 @@
-import 'entry.dart';
+import 'timed_entry.dart';
 import 'entry_base.dart';
 import 'package:dotp/dotp.dart' as dotp;
 
 /// Time-Based One-Time Password
 /// https://tools.ietf.org/html/rfc6238
-class TOTP implements Entry {
+class TOTP implements TimedEntry {
   int type = EntryBase.typeTotp;
+  int timeStep = 30000;
   EntryBase entry;
   
   TOTP(String name, String secret) {
