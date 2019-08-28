@@ -3,6 +3,7 @@ import 'package:free_authenticator/database_helper.dart';
 import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/timer.dart';
 
 void main() => runApp(MyApp());
 
@@ -105,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemBuilder: (context, int) {
             var entry = entries[int];
             return ListTile(
-              leading: Icon(Icons.vpn_key),
+              leading: Timer(interval: 30000),
               title: Text(entry.name + " " + entry.genPassword()),
             );
           },
