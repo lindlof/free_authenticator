@@ -1,4 +1,5 @@
 import 'package:free_authenticator/database_entry.dart';
+import 'package:free_authenticator/entry_type.dart';
 import 'package:free_authenticator/keychain_helper.dart';
 import 'dart:convert';
 import 'totp.dart';
@@ -19,18 +20,18 @@ class EntryBase {
     if (name == null) name = "Decryption error";
     final secret = entry[DatabaseEntry.dataSecret];
 
-    if (map[DatabaseEntry.columnType] == DatabaseEntry.typeTotp) {
+    if (map[DatabaseEntry.columnType] == EntryTypeId[EntryType.totp]) {
       final timeStep = entry[DatabaseEntry.dataTimeStep];
       return TOTP(name, secret, timeStep: timeStep);
     }
     return null;
   }
 
-  Future<Map<String, dynamic>> toDbFormat(int type, Map<String, dynamic> dataMap) async {
+  Future<Map<String, dynamic>> toDbFormat(EntryType type, Map<String, dynamic> dataMap) async {
     var data = await KeychainHelper.encrypt(jsonEncode(dataMap));
 
     Map<String, dynamic> map = {
-      DatabaseEntry.columnType : type,
+      DatabaseEntry.columnType : EntryTypeId[type],
       DatabaseEntry.columnData : data,
     };
     return map;

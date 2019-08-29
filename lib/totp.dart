@@ -1,4 +1,5 @@
 import 'package:free_authenticator/database_entry.dart';
+import 'package:free_authenticator/entry_type.dart';
 
 import 'timed_entry.dart';
 import 'entry_base.dart';
@@ -7,7 +8,7 @@ import 'package:dotp/dotp.dart' as dotp;
 /// Time-Based One-Time Password
 /// https://tools.ietf.org/html/rfc6238
 class TOTP implements TimedEntry {
-  int type = DatabaseEntry.typeTotp;
+  EntryType type = EntryType.totp;
   int timeStep;
   EntryBase entry;
   
@@ -33,6 +34,6 @@ class TOTP implements TimedEntry {
       DatabaseEntry.dataSecret   : entry.secret,
       DatabaseEntry.dataTimeStep : this.timeStep,
     };
-    return this.entry.toDbFormat(DatabaseEntry.typeTotp, dataMap);
+    return this.entry.toDbFormat(EntryType.totp, dataMap);
   }
 }

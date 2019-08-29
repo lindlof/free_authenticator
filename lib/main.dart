@@ -4,6 +4,7 @@ import 'package:free_authenticator/database_helper.dart';
 import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/entry_type.dart';
 import 'package:free_authenticator/timed_entry.dart';
 import 'package:free_authenticator/widget/entry/timed_password.dart';
 
@@ -107,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemCount: entries.length,
           itemBuilder: (context, int) {
             var entry = entries[int];
-            if (entry.type == DatabaseEntry.typeTotp) {
+            if (entry.type == EntryType.totp) {
               return TimedPassword(entry: entry as TimedEntry);
             }
             return null;
