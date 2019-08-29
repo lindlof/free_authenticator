@@ -16,13 +16,13 @@ class TimedPassword extends StatefulWidget {
 }
 
 class _TimedPassword extends State<TimedPassword> {
-  int timeStep;
+  int interval;
   String password;
 
   @override
   void initState() {
     super.initState();
-    this.timeStep = this.widget.entry.timeStep;
+    this.interval = this.widget.entry.timeStep*1000;
     resetState();
   }
 
@@ -32,8 +32,8 @@ class _TimedPassword extends State<TimedPassword> {
     });
 
     var now = new DateTime.now();
-    var ms = (now.second * 1000 + now.millisecond) % timeStep;
-    new Future.delayed(Duration(milliseconds: timeStep - ms), () {
+    var ms = (now.second * 1000 + now.millisecond) % this.interval;
+    new Future.delayed(Duration(milliseconds: this.interval - ms), () {
       resetState();
     });
   }
@@ -41,7 +41,7 @@ class _TimedPassword extends State<TimedPassword> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Timer(interval: this.timeStep),
+      leading: Timer(interval: this.interval),
       title: Text(this.widget.entry.name + " " + this.password),
     );
   }

@@ -14,13 +14,13 @@ class TOTP implements TimedEntry {
   
   TOTP(String name, String secret, {timeStep}) {
     this.entry = EntryBase(name, secret);
-    this.timeStep = (timeStep == null) ? 30000 : timeStep;
+    this.timeStep = (timeStep == null) ? 30 : timeStep;
   }
 
   String get name => this.entry.name;
 
   String genPassword() {
-    dotp.TOTP totp = dotp.TOTP(this.entry.secret);
+    dotp.TOTP totp = dotp.TOTP(this.entry.secret, this.timeStep);
     try {
       return totp.now();
     } catch(Exception) {
