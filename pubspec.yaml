@@ -27,6 +27,7 @@ dependencies:
   flutter_keychain: ^1.0.0
   flutter_string_encryption: ^0.3.1
   dotp: ^1.0.2
+  barcode_scan: ^1.0.0
 
 dev_dependencies:
   flutter_test:
