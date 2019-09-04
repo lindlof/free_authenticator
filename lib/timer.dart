@@ -23,13 +23,12 @@ class _Timer extends State<Timer> with SingleTickerProviderStateMixin {
     this._controller = AnimationController(
       vsync: this,
     );
-    resetState();
+    resetTime();
   }
 
-  void resetState() {
+  void resetTime() {
     var now = new DateTime.now();
     var ms = (now.second * 1000 + now.millisecond) % this.widget.interval;
-    print("Reset state ms " + ms.toString());
     Duration duration = Duration(milliseconds: this.widget.interval - ms);
     this._controller.duration = duration;
 
@@ -37,10 +36,10 @@ class _Timer extends State<Timer> with SingleTickerProviderStateMixin {
       begin: ms/this.widget.interval,
       end: 1,
     );
-    this._controller.repeat();
     
-    new Future.delayed(duration, () {
-      resetState();
+    this._controller.forward().then((void v) {
+      this._controller.reset();
+      resetTime();
     });
   }
 
