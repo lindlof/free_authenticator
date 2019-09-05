@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 
 class Timer extends StatefulWidget {
   final int interval;
+  final double padding;
 
   const Timer({
     Key key,
     @required this.interval,
+    this.padding = 0.0,
   }) : super(key: key);
 
   @override
@@ -51,7 +53,7 @@ class _Timer extends State<Timer> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
+    Widget timer = AnimatedBuilder(
       animation: this._controller,
       child: Container(),
       builder: (context, child) {
@@ -60,5 +62,12 @@ class _Timer extends State<Timer> with SingleTickerProviderStateMixin {
         );
       },
     );
+    return Container(
+        padding: EdgeInsets.all(this.widget.padding),
+        child: AspectRatio(
+          aspectRatio: 1.0,
+          child: timer,
+        ),
+      );
   }
 }

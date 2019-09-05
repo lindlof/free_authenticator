@@ -41,8 +41,10 @@ class _TimedPassword extends State<TimedPassword> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Timer(interval: this.interval),
-      title: Text(this.widget.entry.name + " " + this.password),
+      leading: Timer(interval: this.interval, padding: 14),
+      title: Text(this.password),
+      subtitle: Text(this.widget.entry.name),
+      trailing: Icon(Icons.more_vert),
     );
   }
 }
