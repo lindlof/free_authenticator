@@ -1,4 +1,6 @@
 import 'package:free_authenticator/database_entry.dart';
+import 'package:free_authenticator/database_grouping.dart';
+import 'package:free_authenticator/grouping.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -24,12 +26,30 @@ class DatabaseHelper {
 
   // SQL code to create the database table
   static Future _onCreate(Database db, int version) async {
+    final table = DatabaseEntry.table;
+    final id = DatabaseEntry.columnId;
+    final position = DatabaseEntry.columnPosition;
+    final grouping = DatabaseEntry.columnGrouping;
+    final groupingTable = DatabaseGrouping.table;
     await db.execute('''
-          CREATE TABLE ${DatabaseEntry.table} (
-            ${DatabaseEntry.columnId} INTEGER PRIMARY KEY,
-            ${DatabaseEntry.columnType} INTEGER NOT NULL,
-            ${DatabaseEntry.columnData} TEXT NOT NULL
+          CREATE TABLE $groupingTable (
+            ${DatabaseGrouping.columnId} INTEGER PRIMARY KEY,
+            ${DatabaseGrouping.columnName} TEXT NOT NULL
           );
+          ''');
+    await db.execute('''
+          CREATE TABLE $table (
+            $id INTEGER PRIMARY KEY,
+            ${DatabaseEntry.columnType} INTEGER NOT NULL,
+            ${DatabaseEntry.columnData} TEXT NOT NULL,
+            $position INTEGER NOT NULL,
+            $grouping INTEGER NOT NULL,
+            FOREIGN KEY($grouping) REFERENCES $groupingTable($id),
+            UNIQUE($position,$grouping)
+          );
+          ''');
+    await db.execute('''
+          INSERT INTO $groupingTable(id, name) VALUES(${Grouping.rootId}, "root");
           ''');
   }
 }

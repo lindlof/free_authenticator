@@ -8,12 +8,21 @@ import 'entry.dart';
 class EntryBase {
   String name;
   String secret;
+  int position;
+  int grouping;
 
-  EntryBase(this.name, this.secret);
+  EntryBase(this.name, this.secret, {this.position, this.grouping});
+
+  setPosition(int position, int grouping) {
+    this.position = position;
+    this.grouping = grouping;
+  }
 
   static Future<Entry> fromDbFormat(Map<String, dynamic> map) async {
     print("Entry from map: " + map.values.join(", "));
     final data = await KeychainHelper.decrypt(map[DatabaseEntry.columnData]);
+    int position = map[DatabaseEntry.columnPosition];
+    int grouping = map[DatabaseEntry.columnGrouping];
 
     Map entry = jsonDecode(data);
     var name = entry[DatabaseEntry.dataName];
@@ -22,7 +31,7 @@ class EntryBase {
 
     if (map[DatabaseEntry.columnType] == EntryTypeId[EntryType.totp]) {
       final timeStep = entry[DatabaseEntry.dataTimeStep];
-      return TOTP(name, secret, timeStep: timeStep);
+      return TOTP(name, secret, position: position, grouping: grouping, timeStep: timeStep);
     }
     return null;
   }
@@ -33,6 +42,8 @@ class EntryBase {
     Map<String, dynamic> map = {
       DatabaseEntry.columnType : EntryTypeId[type],
       DatabaseEntry.columnData : data,
+      DatabaseEntry.columnPosition  : this.position,
+      DatabaseEntry.columnGrouping : this.grouping,
     };
     return map;
   }

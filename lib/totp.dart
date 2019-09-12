@@ -12,12 +12,15 @@ class TOTP implements TimedEntry {
   int timeStep;
   EntryBase entry;
   
-  TOTP(String name, String secret, {timeStep}) {
-    this.entry = EntryBase(name, secret);
+  TOTP(String name, String secret, {int position, int grouping, this.timeStep}) {
+    this.entry = EntryBase(name, secret, position: position, grouping: grouping);
     this.timeStep = (timeStep == null) ? 30 : timeStep;
   }
 
   String get name => this.entry.name;
+  int get position => this.entry.position;
+  int get grouping => this.entry.grouping;
+  setPosition(position, grouping) => this.entry.setPosition(position, grouping);
 
   String genPassword() {
     dotp.TOTP totp = dotp.TOTP(this.entry.secret, this.timeStep);
@@ -26,6 +29,11 @@ class TOTP implements TimedEntry {
     } catch(Exception) {
       return "Invalid secret";
     }
+  }
+
+  @override
+  String toString() {
+    return "TOTP ${this.grouping ?? 'root'}:${this.position} ${this.name}";
   }
 
   Future<Map<String, dynamic>> toDbFormat() {

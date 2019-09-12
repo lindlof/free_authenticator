@@ -5,6 +5,8 @@ abstract class DatabaseEntry {
   static final columnId = 'id';
   static final columnType = 'type';
   static final columnData = 'data';
+  static final columnPosition = 'position';
+  static final columnGrouping = 'grouping';
 
   static final dataName = 'name';
   static final dataSecret = 'secret';
