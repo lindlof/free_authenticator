@@ -9,20 +9,20 @@ class EntryBase {
   String name;
   String secret;
   int position;
-  int grouping;
+  int vault;
 
-  EntryBase(this.name, this.secret, {this.position, this.grouping});
+  EntryBase(this.name, this.secret, {this.position, this.vault});
 
-  setPosition(int position, int grouping) {
+  setPosition(int position, int vault) {
     this.position = position;
-    this.grouping = grouping;
+    this.vault = vault;
   }
 
   static Future<Entry> fromDbFormat(Map<String, dynamic> map) async {
-    print("Entry from map: " + map.values.join(", "));
+    print("Entry from map: " + map.toString());
     final data = await KeychainHelper.decrypt(map[DatabaseEntry.columnData]);
     int position = map[DatabaseEntry.columnPosition];
-    int grouping = map[DatabaseEntry.columnGrouping];
+    int vault = map[DatabaseEntry.columnVault];
 
     Map entry = jsonDecode(data);
     var name = entry[DatabaseEntry.dataName];
@@ -31,7 +31,7 @@ class EntryBase {
 
     if (map[DatabaseEntry.columnType] == EntryTypeId[EntryType.totp]) {
       final timeStep = entry[DatabaseEntry.dataTimeStep];
-      return TOTP(name, secret, position: position, grouping: grouping, timeStep: timeStep);
+      return TOTP(name, secret, position: position, vault: vault, timeStep: timeStep);
     }
     return null;
   }
@@ -43,7 +43,7 @@ class EntryBase {
       DatabaseEntry.columnType : EntryTypeId[type],
       DatabaseEntry.columnData : data,
       DatabaseEntry.columnPosition  : this.position,
-      DatabaseEntry.columnGrouping : this.grouping,
+      DatabaseEntry.columnVault : this.vault,
     };
     return map;
   }

@@ -6,7 +6,7 @@ abstract class DatabaseEntry {
   static final columnType = 'type';
   static final columnData = 'data';
   static final columnPosition = 'position';
-  static final columnGrouping = 'grouping';
+  static final columnVault = 'vault';
 
   static final dataName = 'name';
   static final dataSecret = 'secret';
@@ -15,5 +15,6 @@ abstract class DatabaseEntry {
 }
 
 const Map<EntryType, int> EntryTypeId = {
-  EntryType.totp: 1,
+  EntryType.vault: 1,
+  EntryType.totp: 2,
 };

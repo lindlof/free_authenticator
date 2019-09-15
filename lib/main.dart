@@ -5,8 +5,8 @@ import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
 import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/grouping.dart';
 import 'package:free_authenticator/timed_entry.dart';
+import 'package:free_authenticator/vault.dart';
 import 'package:free_authenticator/widget/entry/timed_password.dart';
 
 void main() => runApp(MyApp());
@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final db = await DatabaseHelper.database;
     final mapItems = await db.query(
       DatabaseEntry.table,
-      where: "${DatabaseEntry.columnGrouping} = ${Grouping.rootId}", // TODO substitute using whereArgs
+      where: "${DatabaseEntry.columnVault} = ${Vault.rootId}", // TODO substitute using whereArgs
       orderBy: DatabaseEntry.columnPosition);
     if (mapItems.isNotEmpty) {
       var fEntries = mapItems.map((e) => EntryBase.fromDbFormat(e)).toList();
@@ -81,9 +81,9 @@ class _MyHomePageState extends State<MyHomePage> {
           return CreateEntry(
             onCreate: (Entry entry) async {
               final db = await DatabaseHelper.database;
-              final x = await db.rawQuery('SELECT MAX(${DatabaseEntry.columnPosition}) AS position FROM ${DatabaseEntry.table} WHERE ${DatabaseEntry.columnGrouping} = ${Grouping.rootId};');
+              final x = await db.rawQuery('SELECT MAX(${DatabaseEntry.columnPosition}) AS position FROM ${DatabaseEntry.table} WHERE ${DatabaseEntry.columnVault} = ${Vault.rootId};');
               int nextPosition = ((x[0]['position'] as int) ?? 0) + 1;
-              entry.setPosition(nextPosition, Grouping.rootId);
+              entry.setPosition(nextPosition, Vault.rootId);
               final id = await db.insert(DatabaseEntry.table, await entry.toDbFormat());
               print('inserted row id: $id');
               setState(() {

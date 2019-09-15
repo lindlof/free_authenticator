@@ -1,7 +1,8 @@
 import 'package:free_authenticator/database_entry.dart';
-import 'package:free_authenticator/database_grouping.dart';
-import 'package:free_authenticator/grouping.dart';
+import 'package:free_authenticator/entry_type.dart';
+import 'package:free_authenticator/vault.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:convert';
 
 class DatabaseHelper {
   
@@ -28,28 +29,32 @@ class DatabaseHelper {
   static Future _onCreate(Database db, int version) async {
     final table = DatabaseEntry.table;
     final id = DatabaseEntry.columnId;
+    final type = DatabaseEntry.columnType;
+    final data = DatabaseEntry.columnData;
     final position = DatabaseEntry.columnPosition;
-    final grouping = DatabaseEntry.columnGrouping;
-    final groupingTable = DatabaseGrouping.table;
-    await db.execute('''
-          CREATE TABLE $groupingTable (
-            ${DatabaseGrouping.columnId} INTEGER PRIMARY KEY,
-            ${DatabaseGrouping.columnName} TEXT NOT NULL
-          );
-          ''');
+    final vault = DatabaseEntry.columnVault;
+
     await db.execute('''
           CREATE TABLE $table (
             $id INTEGER PRIMARY KEY,
-            ${DatabaseEntry.columnType} INTEGER NOT NULL,
-            ${DatabaseEntry.columnData} TEXT NOT NULL,
+            $type INTEGER NOT NULL,
+            $data TEXT NOT NULL,
             $position INTEGER NOT NULL,
-            $grouping INTEGER NOT NULL,
-            FOREIGN KEY($grouping) REFERENCES $groupingTable($id),
-            UNIQUE($position,$grouping)
+            $vault INTEGER,
+            FOREIGN KEY($vault) REFERENCES $table($id),
+            UNIQUE($position,$vault)
           );
           ''');
-    await db.execute('''
-          INSERT INTO $groupingTable(id, name) VALUES(${Grouping.rootId}, "root");
-          ''');
+    
+    var rootData = jsonEncode({
+    'name': "root",
+    });
+    Map<String, dynamic> rootEntry = {
+      "$id": "${Vault.rootId}",
+      "$type": "${EntryTypeId[EntryType.vault]}",
+      "$data": "$rootData",
+      "$position": "1",
+    };
+    await db.insert(table, rootEntry);
   }
 }

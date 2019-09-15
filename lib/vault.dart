@@ -1,3 +1,3 @@
-class Grouping {
+class Vault {
   static final rootId = 1;
 }

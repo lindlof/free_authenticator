@@ -5,7 +5,7 @@ abstract class Entry {
   EntryType get type;
   String get name;
   int get position;
-  int get grouping;
-  void setPosition(int position, int grouping);
+  int get vault;
+  void setPosition(int position, int vault);
   String genPassword();
 }
