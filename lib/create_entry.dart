@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/totp.dart';
-import 'package:free_authenticator/entry.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:free_authenticator/entry_type.dart';
 
 class CreateEntry extends StatefulWidget {
   CreateEntry({Key key, this.onCreate}) : super(key: key);
 
-  final Future Function(Entry entry) onCreate;
+  final Future Function(Map<String, dynamic> input) onCreate;
 
   @override
   _CreateEntry createState() => _CreateEntry();
@@ -15,6 +14,7 @@ class CreateEntry extends StatefulWidget {
 class _CreateEntry extends State<CreateEntry> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController secretInput = TextEditingController();
+  TextEditingController vaultInput = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +31,23 @@ class _CreateEntry extends State<CreateEntry> {
             controller: secretInput,
             decoration: InputDecoration(hintText: "Secret"),
           ),
+          TextField(
+            controller: vaultInput,
+            decoration: InputDecoration(hintText: "Vault"),
+          ),
         ],
       ),
       actions: <Widget>[
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            final entry = TOTP(nameInput.text, secretInput.text);
-            await widget.onCreate(entry);
+            Map<String, dynamic> input = {
+              "type": EntryType.totp,
+              "name": nameInput.text,
+              "secret": secretInput.text,
+            };
+            if (vaultInput.text != "") input["vault"] = vaultInput.text;
+            await widget.onCreate(input);
             Navigator.of(context).pop();
           },
         ),

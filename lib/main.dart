@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/database_entry.dart';
-import 'package:free_authenticator/database_helper.dart';
 import 'package:free_authenticator/create_entry.dart';
-import 'package:free_authenticator/entry_base.dart';
 import 'package:free_authenticator/entry.dart';
 import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/timed_entry.dart';
+import 'package:free_authenticator/secret_factory.dart';
 import 'package:free_authenticator/vault.dart';
+import 'package:free_authenticator/vault_factory.dart';
 import 'package:free_authenticator/widget/entry/timed_password.dart';
 
 void main() => runApp(MyApp());
@@ -60,18 +58,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _loadEntries() async {
-    final db = await DatabaseHelper.database;
-    final mapItems = await db.query(
-      DatabaseEntry.table,
-      where: "${DatabaseEntry.columnVault} = ${Vault.rootId}", // TODO substitute using whereArgs
-      orderBy: DatabaseEntry.columnPosition);
-    if (mapItems.isNotEmpty) {
-      var fEntries = mapItems.map((e) => EntryBase.fromDbFormat(e)).toList();
-      var entries = await Future.wait(fEntries);
-      setState(() {
-        this.entries.addAll(entries);
-      });
-    }
+    final entries = await SecretFactory.getEntries(Vault.rootId);
+    setState(() {
+      this.entries.addAll(entries);
+    });
   }
 
   _createEntry(BuildContext context) async {
@@ -79,15 +69,15 @@ class _MyHomePageState extends State<MyHomePage> {
         context: context,
         builder: (context) {
           return CreateEntry(
-            onCreate: (Entry entry) async {
-              final db = await DatabaseHelper.database;
-              final x = await db.rawQuery('SELECT MAX(${DatabaseEntry.columnPosition}) AS position FROM ${DatabaseEntry.table} WHERE ${DatabaseEntry.columnVault} = ${Vault.rootId};');
-              int nextPosition = ((x[0]['position'] as int) ?? 0) + 1;
-              entry.setPosition(nextPosition, Vault.rootId);
-              final id = await db.insert(DatabaseEntry.table, await entry.toDbFormat());
-              print('inserted row id: $id');
+            onCreate: (Map<String, dynamic> input) async {
+              String inputVault = input["vault"];
+              int vault = input.containsKey("vault") ?
+                await VaultFactory.getOrCreate(inputVault) :
+                Vault.rootId;
+              await SecretFactory.create(input, vault);
+              Entry entry = await SecretFactory.getEntry(entries.length+1, vault);
               setState(() {
-                entries.add(entry);
+                this.entries.add(entry);
               });
             }
           );
@@ -112,11 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: ListView.builder(
-          itemCount: entries.length,
+          itemCount: this.entries.length,
           itemBuilder: (context, int) {
             var entry = entries[int];
             if (entry.type == EntryType.totp) {
-              return TimedPassword(entry: entry as TimedEntry);
+              return TimedPassword(entry: entry as TimedPasswordEntry);
             }
             return null;
           },

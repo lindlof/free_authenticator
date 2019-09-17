@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/timed_entry.dart';
+import 'package:free_authenticator/entry.dart';
 import 'package:free_authenticator/timer.dart';
 
 class TimedPassword extends StatefulWidget {
-  final TimedEntry entry;
+  final TimedPasswordEntry entry;
 
   const TimedPassword({
     Key key,
