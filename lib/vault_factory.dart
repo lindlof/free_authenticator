@@ -13,10 +13,11 @@ class VaultFactory {
 
   static Future<Vault> _getName(String name) async {
     String columnData = DatabaseEntry.columnData;
-    List<Map<String, dynamic>> vaults = await DatabaseEntry.getByType(EntryType.vault, name);
+    List<Map<String, dynamic>> vaults = await DatabaseEntry.getByType(EntryTypeId[EntryType.vault]);
+    print("vaults " + vaults.toString());
     Map<String, dynamic> vault = vaults.
       firstWhere((v) => jsonDecode(v[columnData])["name"] == name,
-      orElse: null);
+      orElse: () => null);
     if (vault == null) return null;
     return Vault(
       vault[DatabaseEntry.columnId],

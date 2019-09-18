@@ -10,7 +10,7 @@ abstract class DatabaseEntry {
   static final columnPosition = 'position';
   static final columnVault = 'vault';
 
-  static Future<List<Map<String, dynamic>>> getByType(EntryType type, String name) async {
+  static Future<List<Map<String, dynamic>>> getByType(int type) async {
     Database db = await DatabaseHelper.database;
     List<Map<String, dynamic>> vaults = await db.query(
       table, columns: [columnId, columnData],
