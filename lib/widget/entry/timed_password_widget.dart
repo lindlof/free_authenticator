@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry.dart';
 import 'package:free_authenticator/timer.dart';
 
-class TimedPassword extends StatefulWidget {
+class TimedPasswordWidget extends StatefulWidget {
   final TimedPasswordEntry entry;
 
-  const TimedPassword({
+  const TimedPasswordWidget({
     Key key,
     @required this.entry,
   }) : super(key: key);
@@ -15,7 +15,7 @@ class TimedPassword extends StatefulWidget {
   _TimedPassword createState() => _TimedPassword();
 }
 
-class _TimedPassword extends State<TimedPassword> {
+class _TimedPassword extends State<TimedPasswordWidget> {
   int interval;
   String password;
 

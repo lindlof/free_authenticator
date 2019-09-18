@@ -6,8 +6,9 @@ import 'package:free_authenticator/entry.dart';
 import 'package:free_authenticator/entry_type.dart';
 import 'package:free_authenticator/keychain_helper.dart';
 import 'package:free_authenticator/totp.dart';
+import 'package:free_authenticator/vault.dart';
 
-class SecretFactory {
+class EntryFactory {
   static final jsonType = 'type';
   static final jsonName = 'name';
   static final jsonSecret = 'secret';
@@ -48,7 +49,12 @@ class SecretFactory {
 
   static Future<Entry> _fromJSON(Map<String, dynamic> map) async {
     print("Entry from map: " + map.toString());
-    final data = await KeychainHelper.decrypt(map[DatabaseEntry.columnData]);
+    EntryType type = EntryTypeId.keys.firstWhere(
+      (k) => EntryTypeId[k] == map[DatabaseEntry.columnType]);
+    String data = [EntryType.totp].contains(type) ?
+      await KeychainHelper.decrypt(map[DatabaseEntry.columnData]) :
+      map[DatabaseEntry.columnData];
+
     int id = map[DatabaseEntry.columnId];
     int position = map[DatabaseEntry.columnPosition];
     int vault = map[DatabaseEntry.columnVault];
@@ -58,10 +64,12 @@ class SecretFactory {
     if (name == null) name = "Decryption error";
     final secret = entry[jsonSecret];
 
-    if (map[DatabaseEntry.columnType] == EntryTypeId[EntryType.totp]) {
+    if (type == EntryType.totp) {
       final timeStep = entry[jsonTimeStep];
       return TOTP(id, name, secret, position, vault, timeStep);
+    } else if (type == EntryType.vault) {
+      return Vault(id, name, position, vault);
     }
-    return null;
+    throw StateError("Unknown type " + type.toString());
   }
 }

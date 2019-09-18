@@ -5,7 +5,7 @@ import 'package:free_authenticator/entry_type.dart';
 class Vault implements Entry {
   static final rootId = 1;
   
-  EntryType type = EntryType.totp;
+  EntryType type = EntryType.vault;
   int timeStep;
   EntryBase entry;
   

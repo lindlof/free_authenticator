@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/create_entry.dart';
 import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/entry_factory.dart';
 import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/secret_factory.dart';
 import 'package:free_authenticator/vault.dart';
 import 'package:free_authenticator/vault_factory.dart';
-import 'package:free_authenticator/widget/entry/timed_password.dart';
+import 'package:free_authenticator/widget/entry/timed_password_widget.dart';
+import 'package:free_authenticator/widget/entry/vault_widget.dart';
 
 void main() => runApp(MyApp());
 
@@ -58,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _loadEntries() async {
-    final entries = await SecretFactory.getEntries(Vault.rootId);
+    final entries = await EntryFactory.getEntries(Vault.rootId);
     setState(() {
       this.entries.addAll(entries);
     });
@@ -74,8 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
               int vault = input.containsKey("vault") ?
                 await VaultFactory.getOrCreate(inputVault) :
                 Vault.rootId;
-              await SecretFactory.create(input, vault);
-              Entry entry = await SecretFactory.getEntry(entries.length+1, vault);
+              await EntryFactory.create(input, vault);
+              Entry entry = await EntryFactory.getEntry(entries.length+1, vault);
               setState(() {
                 this.entries.add(entry);
               });
@@ -106,9 +107,11 @@ class _MyHomePageState extends State<MyHomePage> {
           itemBuilder: (context, int) {
             var entry = entries[int];
             if (entry.type == EntryType.totp) {
-              return TimedPassword(entry: entry as TimedPasswordEntry);
+              return TimedPasswordWidget(entry: entry as TimedPasswordEntry);
+            } else if (entry.type == EntryType.vault) {
+              return VaultWidget(entry: entry);
             }
-            return null;
+            throw StateError("Unknown type " + entry.type.toString());
           },
         ),
       ),
