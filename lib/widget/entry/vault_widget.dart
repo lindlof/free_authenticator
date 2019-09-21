@@ -13,6 +13,12 @@ class VaultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: Container(
+        child: AspectRatio(
+          aspectRatio: 1.0,
+          child: Icon(Icons.group_work),
+        ),
+      ),
       title: Text(this.entry.name),
       trailing: Icon(Icons.more_vert),
     );
