@@ -10,12 +10,20 @@ abstract class DatabaseEntry {
   static final columnPosition = 'position';
   static final columnVault = 'vault';
 
+  static Future<List<Map<String, dynamic>>> get(List<int> ids) async {
+    Database db = await DatabaseHelper.database;
+    List<Map<String, dynamic>> entries = await db.query(
+      table, columns: [columnId, columnType, columnData, columnPosition, columnVault],
+      where: "$columnId IN (${ids.map((x) => "?").join(", ")})", whereArgs: ids);
+    return entries;
+  }
+
   static Future<List<Map<String, dynamic>>> getByType(int type) async {
     Database db = await DatabaseHelper.database;
-    List<Map<String, dynamic>> vaults = await db.query(
+    List<Map<String, dynamic>> entries = await db.query(
       table, columns: [columnId, columnData],
       where: "$columnType = ?", whereArgs: [type]);
-    return vaults;
+    return entries;
   }
 
   static Future<int> create(EntryType type, String data, int position, int vault) async {

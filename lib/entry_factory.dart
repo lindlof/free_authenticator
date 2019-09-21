@@ -14,6 +14,14 @@ class EntryFactory {
   static final jsonSecret = 'secret';
   static final jsonTimeStep = 'timestep';
 
+  static Future<Entry> get(int id) async {
+    List<Map<String, dynamic>> entries = await DatabaseEntry.get([id]);
+    if (entries.isEmpty) {
+      throw StateError("No entries with id " + id.toString());
+    }
+    return _fromJSON(entries[0]);
+  }
+
   static Future<void> create(Map<String, dynamic> values, int vault) async {
     EntryType type = values[jsonType];
     int position = await DatabaseEntry.nextPosition(vault);

@@ -53,13 +53,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final entries = <Entry>[];
+  Vault vault;
 
   _MyHomePageState() {
-    _loadEntries();
+    _init();
+  }
+
+  _init() async {
+    this.vault = await EntryFactory.get(Vault.rootId);
+    this._loadEntries();
   }
 
   _loadEntries() async {
-    final entries = await EntryFactory.getEntries(Vault.rootId);
+    final entries = await EntryFactory.getEntries(this.vault.id);
     setState(() {
       this.entries.addAll(entries);
     });
@@ -83,6 +89,12 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           );
         });
+  }
+
+  _openVault(int id) async {
+    this.entries.clear();
+    this.vault = await EntryFactory.get(id);
+    this._loadEntries();
   }
 
   @override
@@ -109,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (entry.type == EntryType.totp) {
               return TimedPasswordWidget(entry: entry as TimedPasswordEntry);
             } else if (entry.type == EntryType.vault) {
-              return VaultWidget(entry: entry);
+              return VaultWidget(entry: entry, onTap: this._openVault);
             }
             throw StateError("Unknown type " + entry.type.toString());
           },

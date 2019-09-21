@@ -5,9 +5,12 @@ import 'package:free_authenticator/entry.dart';
 class VaultWidget extends StatelessWidget {
   final Entry entry;
 
+  final Function onTap;
+
   const VaultWidget({
     Key key,
     @required this.entry,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -21,6 +24,7 @@ class VaultWidget extends StatelessWidget {
       ),
       title: Text(this.entry.name),
       trailing: Icon(Icons.more_vert),
+      onTap: () => this.onTap(this.entry.id),
     );
   }
 }
