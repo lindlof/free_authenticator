@@ -27,6 +27,7 @@ class _TimedPassword extends State<TimedPasswordWidget> {
   }
 
   void resetState() {
+    if (!this.mounted) return;
     setState(() {
       this.password = this.widget.entry.genPassword();
     });
