@@ -38,7 +38,7 @@ class _EntryList extends State<EntryList> {
   }
 
   _loadEntries() async {
-    final entries = await EntryFactory.getEntries(this.vault.id);
+    final entries = await EntryFactory.getEntries(this.vault.id, this._nextPosition);
     setState(() {
       this.entries.addAll(entries);
     });
@@ -55,25 +55,24 @@ class _EntryList extends State<EntryList> {
               await VaultFactory.getOrCreate(inputVault) :
               Vault.rootId;
             await EntryFactory.create(input, vault);
-            Entry entry = await EntryFactory.getEntry(entries.length+1, vault);
-            setState(() {
-              this.entries.add(entry);
-            });
+            Entry entry = await EntryFactory.getEntry(this._nextPosition, this.vault.id);
+            if (entry != null) {
+              setState(() {
+                this.entries.add(entry);
+              });
+            }
           }
         );
       });
   }
 
+  int get _nextPosition => this.entries.length + 1;
+
   _openVault(int id) async {
     EntryList newRoute = EntryList(title: 'One-time Passwords', vaultId: id);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => newRoute),
-    );
-
-    // this.entries.clear();
-    // this.vault = await EntryFactory.get(id);
-    // this._loadEntries();
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => newRoute))
+      .then((dynamic v) => _loadEntries());
   }
 
   @override

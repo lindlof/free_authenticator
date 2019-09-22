@@ -40,8 +40,8 @@ class EntryFactory {
     await DatabaseEntry.create(type, encryptedData, position, vault);
   }
 
-  static Future<List<Entry>> getEntries(int vault) async {
-    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(vault);
+  static Future<List<Entry>> getEntries(int vault, int fromPosition) async {
+    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(vault, fromPosition: fromPosition);
     if (entries.isNotEmpty) {
       var fEntries = entries.map((e) => _fromJSON(e)).toList();
       return await Future.wait(fEntries);

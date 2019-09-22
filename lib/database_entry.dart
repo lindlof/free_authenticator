@@ -37,12 +37,12 @@ abstract class DatabaseEntry {
     return db.insert(table, map);
   }
 
-  static Future<List<Map<String, dynamic>>> getEntries(int vault) async {
+  static Future<List<Map<String, dynamic>>> getEntries(int vault, {int fromPosition: 1}) async {
     final db = await DatabaseHelper.database;
     final entries = await db.query(
       DatabaseEntry.table,
-      where: "${DatabaseEntry.columnVault} = ?",
-      whereArgs: [vault],
+      where: "${DatabaseEntry.columnVault} = ? AND ${DatabaseEntry.columnPosition} >= ?",
+      whereArgs: [vault, fromPosition],
       orderBy: DatabaseEntry.columnPosition);
     return entries;
   }
