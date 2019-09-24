@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_string_encryption/flutter_string_encryption.dart';
 import 'package:flutter/services.dart';
@@ -23,12 +25,12 @@ class KeychainHelper {
     return newKey;
   }
 
-  static encrypt(String data) async {
+  static Future<String> encrypt(String data) async {
     String key = await KeychainHelper.instance._getKey();
     return await cryptor.encrypt(data, key);
   }
 
-  static decrypt(String encrypted) async {
+  static Future<String> decrypt(String encrypted) async {
     try {
       String key = await KeychainHelper.instance._getKey();
       return await cryptor.decrypt(encrypted, key);
@@ -39,5 +41,15 @@ class KeychainHelper {
       print("Unable to decrypt data (platform exception)");
       return null;
     }
+  }
+
+  static Future<String> encryptJson(Map<String, dynamic> data) async {
+    var jsonData = jsonEncode(data);
+    return await KeychainHelper.encrypt(jsonData);
+  }
+
+  static Future<Map<String, dynamic>> decryptJson(String encrypted) async {
+    var decrypted = await KeychainHelper.decrypt(encrypted);
+    return jsonDecode(decrypted);
   }
 }

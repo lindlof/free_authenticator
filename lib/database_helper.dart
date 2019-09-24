@@ -1,4 +1,7 @@
 import 'package:free_authenticator/database_entry.dart';
+import 'package:free_authenticator/entry_type.dart';
+import 'package:free_authenticator/keychain_helper.dart';
+import 'package:free_authenticator/vault.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -24,12 +27,35 @@ class DatabaseHelper {
 
   // SQL code to create the database table
   static Future _onCreate(Database db, int version) async {
+    final table = DatabaseEntry.table;
+    final id = DatabaseEntry.columnId;
+    final type = DatabaseEntry.columnType;
+    final data = DatabaseEntry.columnData;
+    final position = DatabaseEntry.columnPosition;
+    final vault = DatabaseEntry.columnVault;
+
     await db.execute('''
-          CREATE TABLE ${DatabaseEntry.table} (
-            ${DatabaseEntry.columnId} INTEGER PRIMARY KEY,
-            ${DatabaseEntry.columnType} INTEGER NOT NULL,
-            ${DatabaseEntry.columnData} TEXT NOT NULL
+          CREATE TABLE $table (
+            $id INTEGER PRIMARY KEY,
+            $type INTEGER NOT NULL,
+            $data TEXT NOT NULL,
+            $position INTEGER NOT NULL,
+            $vault INTEGER,
+            FOREIGN KEY($vault) REFERENCES $table($id),
+            UNIQUE($position,$vault)
           );
           ''');
+    
+    var secretData = {
+    'name': "root",
+    };
+    var encryptedData = await KeychainHelper.encryptJson(secretData);
+    Map<String, dynamic> rootEntry = {
+      "$id": "${Vault.rootId}",
+      "$type": "${EntryTypeId[EntryType.vault]}",
+      "$data": "$encryptedData",
+      "$position": "1",
+    };
+    await db.insert(table, rootEntry);
   }
 }
