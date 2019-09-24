@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:free_authenticator/database_entry.dart';
 import 'package:free_authenticator/entry_type.dart';
+import 'package:free_authenticator/keychain_helper.dart';
 import 'package:free_authenticator/vault.dart';
 
 class VaultFactory {
@@ -15,9 +14,14 @@ class VaultFactory {
     String columnData = DatabaseEntry.columnData;
     List<Map<String, dynamic>> vaults = await DatabaseEntry.getByType(EntryTypeId[EntryType.vault]);
     print("vaults " + vaults.toString());
-    Map<String, dynamic> vault = vaults.
-      firstWhere((v) => jsonDecode(v[columnData])["name"] == name,
-      orElse: () => null);
+
+    Map<String, dynamic> vault;
+    for (var v in vaults) {
+      if ((await KeychainHelper.decryptJson(v[columnData]))["name"] == name) {
+        vault = v;
+        break;
+      }
+    }
     if (vault == null) return null;
     return Vault(
       vault[DatabaseEntry.columnId],
@@ -28,10 +32,11 @@ class VaultFactory {
 
   static Future<Vault> _create(String name) async {
     int position = await DatabaseEntry.nextPosition(Vault.rootId);
-    var vaultData = jsonEncode({
+    var secretData = {
       "name": name,
-    });
-    int vaultId = await DatabaseEntry.create(EntryType.vault, vaultData, position, Vault.rootId);
+    };
+    var encryptedData = await KeychainHelper.encryptJson(secretData);
+    int vaultId = await DatabaseEntry.create(EntryType.vault, encryptedData, position, Vault.rootId);
     return Vault(
       vaultId,
       name,
