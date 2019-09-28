@@ -1,4 +1,5 @@
 import 'package:free_authenticator/database/database_entry.dart';
+import 'package:free_authenticator/factory/db_factory.dart';
 import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/entry/totp.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
@@ -12,7 +13,8 @@ class EntryFactory {
   static final jsonTimeStep = 'timestep';
 
   static Future<Entry> get(int id) async {
-    List<Map<String, dynamic>> entries = await DatabaseEntry.get([id]);
+    final db = await DbFactory.database;
+    List<Map<String, dynamic>> entries = await DatabaseEntry.get(db, [id]);
     if (entries.isEmpty) {
       throw StateError("No entries with id " + id.toString());
     }
@@ -20,25 +22,18 @@ class EntryFactory {
   }
 
   static Future<void> create(Map<String, dynamic> values, int vault) async {
+    final db = await DbFactory.database;
+    int position = await DatabaseEntry.nextPosition(db, vault);
     EntryType type = values[jsonType];
-    int position = await DatabaseEntry.nextPosition(vault);
-    Map<String, dynamic> secretData = {
-      jsonName: values[jsonName] as String,
-      jsonSecret: values[jsonSecret] as String,
-    };
+    Map<String, dynamic> data = _toJsonData(values);
 
-    if (type == EntryType.totp) {
-      secretData[jsonTimeStep] = values[jsonTimeStep] ?? 30;
-    } else {
-      throw ArgumentError("SecretFactory does not produce " + EntryTypeDesc[type]);
-    }
-
-    var encryptedData = await KeychainHelper.encryptJson(secretData);
-    await DatabaseEntry.create(type, encryptedData, position, vault);
+    var encryptedData = await KeychainHelper.encryptJson(data);
+    await DatabaseEntry.create(db, type, encryptedData, position, vault);
   }
 
   static Future<List<Entry>> getEntries(int vault, int fromPosition) async {
-    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(vault, fromPosition: fromPosition);
+    final db = await DbFactory.database;
+    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(db, vault, fromPosition: fromPosition);
     if (entries.isNotEmpty) {
       var fEntries = entries.map((e) => _fromJSON(e)).toList();
       return await Future.wait(fEntries);
@@ -47,9 +42,25 @@ class EntryFactory {
   }
 
   static Future<Entry> getEntry(int position, int vault) async {
-    Map<String, dynamic> entry = await DatabaseEntry.getEntry(position, vault);
+    final db = await DbFactory.database;
+    Map<String, dynamic> entry = await DatabaseEntry.getEntry(db, position, vault);
     if (entry == null) return null;
     return _fromJSON(entry);
+  }
+
+  static Map<String, dynamic> _toJsonData(Map<String, dynamic> values) {
+    EntryType type = values[jsonType];
+    Map<String, dynamic> data = {
+      jsonName: values[jsonName] as String,
+      jsonSecret: values[jsonSecret] as String,
+    };
+
+    if (type == EntryType.totp) {
+      data[jsonTimeStep] = values[jsonTimeStep] ?? 30;
+    } else {
+      throw ArgumentError("SecretFactory does not produce " + EntryTypeDesc[type]);
+    }
+    return data;
   }
 
   static Future<Entry> _fromJSON(Map<String, dynamic> map) async {
