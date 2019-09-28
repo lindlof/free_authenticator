@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/entry_list.dart';
-import 'package:free_authenticator/vault.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/widget/entry_list.dart';
 
 void main() {
   runApp(FreeAuthenticatorApp());
@@ -15,7 +15,7 @@ class FreeAuthenticatorApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: EntryList(title: 'One-time Passwords', vaultId: Vault.rootId),
+      home: EntryList(title: 'One-time Passwords', vaultId: VaultEntry.rootId),
     );
   }
 }

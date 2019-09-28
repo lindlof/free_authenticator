@@ -1,7 +1,7 @@
-import 'package:free_authenticator/database_entry.dart';
-import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/keychain_helper.dart';
-import 'package:free_authenticator/vault.dart';
+import 'package:free_authenticator/database/database_entry.dart';
+import 'package:free_authenticator/keychain/keychain_helper.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/model/interface/entry_type.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
@@ -51,7 +51,7 @@ class DatabaseHelper {
     };
     var encryptedData = await KeychainHelper.encryptJson(secretData);
     Map<String, dynamic> rootEntry = {
-      "$id": "${Vault.rootId}",
+      "$id": "${VaultEntry.rootId}",
       "$type": "${EntryTypeId[EntryType.vault]}",
       "$data": "$encryptedData",
       "$position": "1",

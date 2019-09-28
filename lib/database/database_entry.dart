@@ -1,5 +1,5 @@
-import 'package:free_authenticator/database_helper.dart';
-import 'package:free_authenticator/entry_type.dart';
+import 'package:free_authenticator/database/database_helper.dart';
+import 'package:free_authenticator/model/interface/entry_type.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class DatabaseEntry {

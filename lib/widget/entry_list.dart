@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/create_entry.dart';
-import 'package:free_authenticator/entry.dart';
-import 'package:free_authenticator/entry_factory.dart';
-import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/vault.dart';
-import 'package:free_authenticator/vault_factory.dart';
+import 'package:free_authenticator/factory/entry_factory.dart';
+import 'package:free_authenticator/factory/vault_factory.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/entry/timed_password_widget.dart';
 import 'package:free_authenticator/widget/entry/vault_widget.dart';
 
@@ -24,7 +23,7 @@ class EntryList extends StatefulWidget {
 
 class _EntryList extends State<EntryList> {
   final entries = <Entry>[];
-  Vault vault;
+  Entry vault;
 
   @override
   void initState() {
@@ -53,7 +52,7 @@ class _EntryList extends State<EntryList> {
             String inputVault = input["vault"];
             int vault = input.containsKey("vault") ?
               await VaultFactory.getOrCreate(inputVault) :
-              Vault.rootId;
+              VaultEntry.rootId;
             await EntryFactory.create(input, vault);
             Entry entry = await EntryFactory.getEntry(this._nextPosition, this.vault.id);
             if (entry != null) {

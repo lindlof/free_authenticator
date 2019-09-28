@@ -1,8 +1,8 @@
-import 'package:free_authenticator/entry.dart';
-import 'package:free_authenticator/entry_base.dart';
-import 'package:free_authenticator/entry_type.dart';
+import '../interface/entry.dart';
+import 'entry_base.dart';
+import '../interface/entry_type.dart';
 
-class Vault implements Entry {
+class Vault implements Entry, VaultEntry {
   static final rootId = 1;
   
   EntryType type = EntryType.vault;

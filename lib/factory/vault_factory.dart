@@ -1,7 +1,7 @@
-import 'package:free_authenticator/database_entry.dart';
-import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/keychain_helper.dart';
-import 'package:free_authenticator/vault.dart';
+import 'package:free_authenticator/database/database_entry.dart';
+import 'package:free_authenticator/keychain/keychain_helper.dart';
+import 'package:free_authenticator/model/entry/vault.dart';
+import 'package:free_authenticator/model/interface/entry_type.dart';
 
 class VaultFactory {
   static Future<int> getOrCreate(String name) async {
