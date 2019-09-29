@@ -2,7 +2,6 @@ import 'package:free_authenticator/database/database_entry.dart';
 import 'package:free_authenticator/database/database_init.dart';
 import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class DbFactory {
@@ -28,7 +27,7 @@ class DbFactory {
     var encryptedData = await KeychainHelper.encryptJson(secretData);
     Map<String, dynamic> rootEntry = {
       "$id": "${VaultEntry.rootId}",
-      "$type": "${EntryTypeId[EntryType.vault]}",
+      "$type": "${DatabaseEntry.vaultTypeId}",
       "$data": "$encryptedData",
       "$position": "1",
     };

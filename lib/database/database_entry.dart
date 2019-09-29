@@ -1,4 +1,3 @@
-import 'package:free_authenticator/model/interface/entry_type.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 abstract class DatabaseEntry {
@@ -8,6 +7,9 @@ abstract class DatabaseEntry {
   static final columnData = 'data';
   static final columnPosition = 'position';
   static final columnVault = 'vault';
+
+  static final vaultTypeId = 1;
+  static final totpTypeId = 2;
 
   static Future<List<Map<String, dynamic>>> get(DatabaseExecutor db, List<int> ids) async {
     List<Map<String, dynamic>> entries = await db.query(
@@ -23,9 +25,9 @@ abstract class DatabaseEntry {
     return entries;
   }
 
-  static Future<int> create(DatabaseExecutor db, EntryType type, String data, int position, int vault) async {
+  static Future<int> create(DatabaseExecutor db, int type, String data, int position, int vault) async {
     Map<String, dynamic> map = {
-      DatabaseEntry.columnType : EntryTypeId[type],
+      DatabaseEntry.columnType : type,
       DatabaseEntry.columnData : data,
       DatabaseEntry.columnPosition : position,
       DatabaseEntry.columnVault : vault,
@@ -56,8 +58,3 @@ abstract class DatabaseEntry {
     return ((x[0]['position'] as int) ?? 0) + 1;
   }
 }
-
-const Map<EntryType, int> EntryTypeId = {
-  EntryType.vault: 1,
-  EntryType.totp: 2,
-};

@@ -12,6 +12,11 @@ class EntryFactory {
   static final jsonSecret = 'secret';
   static final jsonTimeStep = 'timestep';
 
+  static final Map<EntryType, int> _typeId = {
+    EntryType.vault: DatabaseEntry.vaultTypeId,
+    EntryType.totp: DatabaseEntry.totpTypeId,
+  };
+
   static Future<Entry> get(int id) async {
     final db = await DbFactory.database;
     List<Map<String, dynamic>> entries = await DatabaseEntry.get(db, [id]);
@@ -25,10 +30,11 @@ class EntryFactory {
     final db = await DbFactory.database;
     int position = await DatabaseEntry.nextPosition(db, vault);
     EntryType type = values[jsonType];
+    int typeId = _typeId[type];
     Map<String, dynamic> data = _toJsonData(values);
 
     var encryptedData = await KeychainHelper.encryptJson(data);
-    await DatabaseEntry.create(db, type, encryptedData, position, vault);
+    await DatabaseEntry.create(db, typeId, encryptedData, position, vault);
   }
 
   static Future<List<Entry>> getEntries(int vault, int fromPosition) async {
@@ -65,8 +71,8 @@ class EntryFactory {
 
   static Future<Entry> _fromJSON(Map<String, dynamic> map) async {
     print("Entry from map: " + map.toString());
-    EntryType type = EntryTypeId.keys.firstWhere(
-      (k) => EntryTypeId[k] == map[DatabaseEntry.columnType]);
+    EntryType type = _typeId.keys.firstWhere(
+      (k) => _typeId[k] == map[DatabaseEntry.columnType]);
 
     int id = map[DatabaseEntry.columnId];
     int position = map[DatabaseEntry.columnPosition];
