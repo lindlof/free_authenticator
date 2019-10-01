@@ -1,8 +1,8 @@
-import 'package:free_authenticator/entry_type.dart';
-
-import 'entry.dart';
+import '../interface/entry.dart';
 import 'entry_base.dart';
 import 'package:dotp/dotp.dart' as dotp;
+
+import '../interface/entry_type.dart';
 
 /// Time-Based One-Time Password
 /// https://tools.ietf.org/html/rfc6238

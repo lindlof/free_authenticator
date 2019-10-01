@@ -1,4 +1,4 @@
-import 'package:free_authenticator/entry_type.dart';
+import 'entry_type.dart';
 
 abstract class Entry {
   EntryType get type;
@@ -18,3 +18,7 @@ abstract class TimedEntry implements Entry {
 }
 
 abstract class TimedPasswordEntry implements Entry, PasswordEntry, TimedEntry {}
+
+abstract class VaultEntry {
+  static const rootId = 1;
+}

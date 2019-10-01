@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/create_entry.dart';
-import 'package:free_authenticator/entry.dart';
-import 'package:free_authenticator/entry_factory.dart';
-import 'package:free_authenticator/entry_type.dart';
-import 'package:free_authenticator/vault.dart';
-import 'package:free_authenticator/vault_factory.dart';
-import 'package:free_authenticator/widget/entry/timed_password_widget.dart';
-import 'package:free_authenticator/widget/entry/vault_widget.dart';
+import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
+import 'package:free_authenticator/factory/entry_factory.dart';
+import 'package:free_authenticator/factory/vault_factory.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/widget/dialog/create_entry.dart';
 
 class EntryList extends StatefulWidget {
   final String title;
@@ -15,7 +12,7 @@ class EntryList extends StatefulWidget {
   EntryList({
     Key key,
     @required this.title,
-    @required this.vaultId,
+    this.vaultId: VaultEntry.rootId,
   }) : super(key: key);
 
   @override
@@ -24,7 +21,7 @@ class EntryList extends StatefulWidget {
 
 class _EntryList extends State<EntryList> {
   final entries = <Entry>[];
-  Vault vault;
+  Entry vault;
 
   @override
   void initState() {
@@ -53,7 +50,7 @@ class _EntryList extends State<EntryList> {
             String inputVault = input["vault"];
             int vault = input.containsKey("vault") ?
               await VaultFactory.getOrCreate(inputVault) :
-              Vault.rootId;
+              VaultEntry.rootId;
             await EntryFactory.create(input, vault);
             Entry entry = await EntryFactory.getEntry(this._nextPosition, this.vault.id);
             if (entry != null) {
@@ -86,12 +83,7 @@ class _EntryList extends State<EntryList> {
           itemCount: this.entries.length,
           itemBuilder: (context, int) {
             var entry = entries[int];
-            if (entry.type == EntryType.totp) {
-              return TimedPasswordWidget(entry: entry as TimedPasswordEntry);
-            } else if (entry.type == EntryType.vault) {
-              return VaultWidget(entry: entry, onTap: this._openVault);
-            }
-            throw StateError("Unknown type " + entry.type.toString());
+            return EntryWidgetFactory.create(entry, this._openVault);
           },
         ),
       ),

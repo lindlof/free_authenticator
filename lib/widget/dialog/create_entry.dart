@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:free_authenticator/entry_type.dart';
+import 'package:free_authenticator/model/interface/entry_type.dart';
 
 class CreateEntry extends StatefulWidget {
   CreateEntry({Key key, this.onCreate}) : super(key: key);

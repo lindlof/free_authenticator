@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/entry.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
 
 class VaultWidget extends StatelessWidget {
   final Entry entry;
