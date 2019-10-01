@@ -15,7 +15,7 @@ class FreeAuthenticatorApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: EntryList(title: 'One-time Passwords', vaultId: VaultEntry.rootId),
+      home: EntryList(title: 'One-time Passwords'),
     );
   }
 }

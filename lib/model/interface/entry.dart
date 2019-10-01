@@ -20,5 +20,5 @@ abstract class TimedEntry implements Entry {
 abstract class TimedPasswordEntry implements Entry, PasswordEntry, TimedEntry {}
 
 abstract class VaultEntry {
-  static final rootId = 1;
+  static const rootId = 1;
 }
