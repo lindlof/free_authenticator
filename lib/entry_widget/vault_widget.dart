@@ -4,14 +4,21 @@ import 'package:free_authenticator/model/interface/entry.dart';
 
 class VaultWidget extends StatelessWidget {
   final Entry entry;
-
+  final bool isSelected;
+  final Function(Entry) onSelect;
   final Function onTap;
 
   const VaultWidget({
     Key key,
     @required this.entry,
+    this.isSelected,
+    this.onSelect,
     this.onTap,
   }) : super(key: key);
+
+  void _onSelect() {
+    this.onSelect(this.entry);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +30,8 @@ class VaultWidget extends StatelessWidget {
         ),
       ),
       title: Text(this.entry.name),
-      trailing: Icon(Icons.more_vert),
+      onLongPress: _onSelect,
+      selected: this.isSelected,
       onTap: () => this.onTap(this.entry.id),
     );
   }

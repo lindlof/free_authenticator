@@ -6,10 +6,14 @@ import 'element/timer.dart';
 
 class TimedPasswordWidget extends StatefulWidget {
   final TimedPasswordEntry entry;
+  final bool isSelected;
+  final Function(Entry) onSelect;
 
   const TimedPasswordWidget({
     Key key,
     @required this.entry,
+    this.isSelected,
+    this.onSelect,
   }) : super(key: key);
 
   @override
@@ -40,13 +44,18 @@ class _TimedPassword extends State<TimedPasswordWidget> {
     });
   }
 
+  void _onSelect() {
+    this.widget.onSelect(this.widget.entry);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Timer(interval: this.interval, padding: 14),
       title: Text(this.password),
       subtitle: Text(this.widget.entry.name),
-      trailing: Icon(Icons.more_vert),
+      onLongPress: _onSelect,
+      selected: this.widget.isSelected,
     );
   }
 }

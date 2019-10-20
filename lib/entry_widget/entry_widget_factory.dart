@@ -8,12 +8,25 @@ import 'vault_widget.dart';
 class EntryWidgetFactory {
   static Widget create(
       Entry entry,
-      Function(int) openVault
+      bool isSelected,
+      Function(Entry) onSelect,
+      Function(int) openVault,
     ) {
     if (entry.type == EntryType.totp) {
-      return TimedPasswordWidget(entry: entry as TimedPasswordEntry);
+      return TimedPasswordWidget(
+        key: ValueKey(entry.id),
+        entry: entry as TimedPasswordEntry,
+        isSelected: isSelected,
+        onSelect: onSelect,
+      );
     } else if (entry.type == EntryType.vault) {
-      return VaultWidget(entry: entry, onTap: openVault);
+      return VaultWidget(
+        key: ValueKey(entry.id),
+        entry: entry,
+        isSelected: isSelected,
+        onSelect: onSelect,
+        onTap: openVault,
+      );
     }
     throw StateError("Unknown type " + entry.type.toString());
   }
