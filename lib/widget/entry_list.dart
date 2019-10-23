@@ -5,6 +5,7 @@ import 'package:free_authenticator/factory/vault_factory.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
+import 'select_route.dart';
 
 class EntryList extends StatefulWidget {
   final String title;
@@ -75,6 +76,16 @@ class _EntryList extends State<EntryList> {
   }
 
   _onSelect(Entry entry) {
+    var selectRoute = SelectRoute();
+    selectRoute.addLocalHistoryEntry(
+      LocalHistoryEntry(onRemove: () {
+        setState(() {
+          this.selected = null;
+        });
+      })
+    );
+    Navigator.of(context)
+      .push(selectRoute);
     setState(() {
       this.selected = ValueKey(entry.id);
     });
@@ -96,6 +107,10 @@ class _EntryList extends State<EntryList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: this.selected == null ? null : new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(widget.title),
       ),
       body: Center(
