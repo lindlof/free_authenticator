@@ -76,16 +76,13 @@ class _EntryList extends State<EntryList> {
   }
 
   _onSelect(Entry entry) {
-    var selectRoute = SelectRoute();
-    selectRoute.addLocalHistoryEntry(
-      LocalHistoryEntry(onRemove: () {
-        setState(() {
-          this.selected = null;
-        });
-      })
-    );
-    Navigator.of(context)
-      .push(selectRoute);
+    Navigator.of(context).popUntil((route) => !(route is SelectRoute));
+    var selectRoute = SelectRoute(onRemove: () {
+      setState(() {
+        this.selected = null;
+      });
+    });
+    Navigator.of(context).push(selectRoute);
     setState(() {
       this.selected = ValueKey(entry.id);
     });
