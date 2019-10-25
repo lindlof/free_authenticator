@@ -8,8 +8,8 @@ class SelectRoute<T> extends Route<T> with LocalHistoryRoute<T> {
   }) : super();
 
   @override
-  Future<RoutePopDisposition> willPop() async {
+  bool didPop(T result) {
     if (this.onRemove != null) this.onRemove();
-    return await super.willPop();
+    return super.didPop(result);
   }
 }
