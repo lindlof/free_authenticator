@@ -76,7 +76,7 @@ class _EntryList extends State<EntryList> {
   }
 
   _onSelect(Entry entry) {
-    Navigator.of(context).popUntil((route) => !(route is SelectRoute));
+    Navigator.of(context).popUntil((route) => route is! SelectRoute);
     var selectRoute = SelectRoute(onRemove: () {
       setState(() {
         this.selected = null;
