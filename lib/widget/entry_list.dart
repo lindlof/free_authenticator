@@ -108,6 +108,17 @@ class _EntryList extends State<EntryList> {
           icon: new Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: this.selected == null ? null : <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.edit),
+            onPressed: () => null,
+          ),
+          new IconButton(
+            icon: new Icon(Icons.delete),
+            highlightColor: Colors.red,
+            onPressed: () => null,
+          ),
+        ],
         title: Text(widget.title),
       ),
       body: Center(
