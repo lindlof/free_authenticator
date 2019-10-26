@@ -23,7 +23,7 @@ class EntryList extends StatefulWidget {
 
 class _EntryList extends State<EntryList> {
   final entries = <Entry>[];
-  Key selected;
+  Entry selected;
   Entry vault;
 
   @override
@@ -67,6 +67,7 @@ class _EntryList extends State<EntryList> {
   }
 
   int get _nextPosition => this.entries.length + 1;
+  Key get _selectedKey => this.selected == null ? null : ValueKey(this.selected.id);
 
   _openVault(int id) async {
     EntryList newRoute = EntryList(title: 'One-time Passwords', vaultId: id);
@@ -84,7 +85,7 @@ class _EntryList extends State<EntryList> {
     });
     Navigator.of(context).push(selectRoute);
     setState(() {
-      this.selected = ValueKey(entry.id);
+      this.selected = entry;
     });
   }
 
@@ -119,15 +120,20 @@ class _EntryList extends State<EntryList> {
             onPressed: () => null,
           ),
         ],
-        title: Text(widget.title),
+        title: this.selected != null ? Text(this.selected.name) : Text(widget.title),
       ),
       body: Center(
         child: ReorderableListSelect(
-          selected: this.selected,
+          selected: _selectedKey,
           itemCount: this.entries.length,
           indexItemBuilder: (int index) {
             Entry entry = entries[index];
-            return EntryWidgetFactory.create(entry, ValueKey(entry.id) == this.selected, this._onSelect, this._openVault);
+            return EntryWidgetFactory.create(
+              entry,
+              ValueKey(entry.id) == _selectedKey,
+              this._onSelect,
+              this._openVault
+            );
           },
           onReorder: this._reorderCallback,
         ),
