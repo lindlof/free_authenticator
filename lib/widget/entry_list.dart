@@ -5,6 +5,7 @@ import 'package:free_authenticator/factory/vault_factory.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
+import 'dialog/delete_entry.dart';
 import 'select_route.dart';
 
 class EntryList extends StatefulWidget {
@@ -101,6 +102,22 @@ class _EntryList extends State<EntryList> {
     return true;
   }
 
+  _deleteEntry(Entry selected) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return DeleteEntry(
+          entry: selected,
+          onDelete: (int id) async {
+            this.selected = null;
+            this.setState(() {
+              this.entries.removeWhere((e) => e.id == id);
+            });
+          }
+        );
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +134,7 @@ class _EntryList extends State<EntryList> {
           new IconButton(
             icon: new Icon(Icons.delete),
             highlightColor: Colors.red,
-            onPressed: () => null,
+            onPressed: () => _deleteEntry(this.selected),
           ),
         ],
         title: this.selected != null ? Text(this.selected.name) : Text(widget.title),
