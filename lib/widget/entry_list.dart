@@ -6,6 +6,7 @@ import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
 import 'dialog/delete_entry.dart';
+import 'dialog/edit_entry.dart';
 import 'select_route.dart';
 
 class EntryList extends StatefulWidget {
@@ -62,6 +63,43 @@ class _EntryList extends State<EntryList> {
                 this.entries.add(entry);
               });
             }
+          },
+          nameKey: EntryFactory.jsonName,
+          typeKey: EntryFactory.jsonType,
+          secretKey: EntryFactory.jsonType,
+          vaultKey: "vault",
+        );
+      });
+  }
+
+    _editEntry(Entry selected) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return EditEntry(
+          entry: selected,
+          onEdit: (Map<String, dynamic> input) async {
+            setState(() {
+              this.selected = null;
+            });
+          },
+          nameKey: EntryFactory.jsonName,
+          vaultKey: "vault",
+        );
+      });
+  }
+
+  _deleteEntry(Entry selected) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return DeleteEntry(
+          entry: selected,
+          onDelete: (int id) async {
+            this.selected = null;
+            this.setState(() {
+              this.entries.removeWhere((e) => e.id == id);
+            });
           }
         );
       });
@@ -102,22 +140,6 @@ class _EntryList extends State<EntryList> {
     return true;
   }
 
-  _deleteEntry(Entry selected) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return DeleteEntry(
-          entry: selected,
-          onDelete: (int id) async {
-            this.selected = null;
-            this.setState(() {
-              this.entries.removeWhere((e) => e.id == id);
-            });
-          }
-        );
-      });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,7 +151,7 @@ class _EntryList extends State<EntryList> {
         actions: this.selected == null ? null : <Widget>[
           new IconButton(
             icon: new Icon(Icons.edit),
-            onPressed: () => null,
+            onPressed: () => _editEntry(this.selected),
           ),
           new IconButton(
             icon: new Icon(Icons.delete),

@@ -3,9 +3,20 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
 
 class CreateEntry extends StatefulWidget {
-  CreateEntry({Key key, this.onCreate}) : super(key: key);
+  CreateEntry({
+    Key key,
+    @required this.onCreate,
+    @required this.typeKey,
+    @required this.nameKey,
+    @required this.secretKey,
+    @required this.vaultKey,
+  }) : super(key: key);
 
   final Future Function(Map<String, dynamic> input) onCreate;
+  final String typeKey;
+  final String nameKey;
+  final String secretKey;
+  final String vaultKey;
 
   @override
   _CreateEntry createState() => _CreateEntry();
@@ -42,11 +53,11 @@ class _CreateEntry extends State<CreateEntry> {
           child: new Text('Ok'),
           onPressed: () async {
             Map<String, dynamic> input = {
-              "type": EntryType.totp,
-              "name": nameInput.text,
-              "secret": secretInput.text,
+              this.widget.typeKey: EntryType.totp,
+              this.widget.nameKey: nameInput.text,
+              this.widget.secretKey: secretInput.text,
             };
-            if (vaultInput.text != "") input["vault"] = vaultInput.text;
+            if (vaultInput.text != "") input[this.widget.vaultKey] = vaultInput.text;
             await widget.onCreate(input);
             Navigator.of(context).pop();
           },
