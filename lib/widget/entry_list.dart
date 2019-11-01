@@ -72,15 +72,18 @@ class _EntryList extends State<EntryList> {
       });
   }
 
-    _editEntry(Entry selected) {
+  _editEntry(Entry selected) {
     return showDialog(
       context: context,
       builder: (context) {
         return EditEntry(
           entry: selected,
           onEdit: (Map<String, dynamic> input) async {
+            await EntryFactory.update(selected, input);
+            Entry entry = await EntryFactory.getEntry(selected.position, selected.vault); // TODO get by id
             setState(() {
               this.selected = null;
+              this.entries.replaceRange(entry.position-1, entry.position, [entry]);
             });
           },
           nameKey: EntryFactory.jsonName,

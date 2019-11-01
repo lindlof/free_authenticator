@@ -35,6 +35,15 @@ abstract class DatabaseEntry {
     return db.insert(table, map);
   }
 
+  static Future<int> updateData(DatabaseExecutor db, int id, String data) async {
+    Map<String, dynamic> map = {
+      DatabaseEntry.columnData : data,
+    };
+    return db.update(
+      table, map,
+      where: "$columnId = ?", whereArgs: [id]);
+  }
+
   static Future<List<Map<String, dynamic>>> getEntries(DatabaseExecutor db, int vault, {int fromPosition: 1}) async {
     final entries = await db.query(
       DatabaseEntry.table,

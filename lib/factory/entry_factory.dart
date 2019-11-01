@@ -37,6 +37,14 @@ class EntryFactory {
     await DatabaseEntry.create(db, typeId, encryptedData, position, vault);
   }
 
+  static Future<void> update(Entry entry, Map<String, dynamic> values) async {
+    final db = await DbFactory.database;
+    Map<String, dynamic> data = _toJsonData(values, entry: entry);
+
+    var encryptedData = await KeychainHelper.encryptJson(data);
+    await DatabaseEntry.updateData(db, entry.id, encryptedData);
+  }
+
   static Future<List<Entry>> getEntries(int vault, int fromPosition) async {
     final db = await DbFactory.database;
     List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(db, vault, fromPosition: fromPosition);
@@ -54,14 +62,23 @@ class EntryFactory {
     return _fromJSON(entry);
   }
 
-  static Map<String, dynamic> _toJsonData(Map<String, dynamic> values) {
+  static Map<String, dynamic> _toJsonData(Map<String, dynamic> values, {Entry entry}) {
+    final fillMissingValue = (String key, dynamic value) {
+      if (!values.containsKey(key) && value != null) values[key] = value;
+    };
+    fillMissingValue(jsonName, entry.name);
+    fillMissingValue(jsonType, entry.type);
+    
     EntryType type = values[jsonType];
     Map<String, dynamic> data = {
       jsonName: values[jsonName] as String,
-      jsonSecret: values[jsonSecret] as String,
     };
 
     if (type == EntryType.totp) {
+      TOTP totp = entry as TOTP;
+      fillMissingValue(jsonSecret, totp.secret);
+      fillMissingValue(jsonTimeStep, totp.timeStep);
+      data[jsonSecret] = values[jsonSecret] as String;
       data[jsonTimeStep] = values[jsonTimeStep] ?? 30;
     } else {
       throw ArgumentError("SecretFactory does not produce " + EntryTypeDesc[type]);
