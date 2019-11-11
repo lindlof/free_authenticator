@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 
 class EditEntry extends StatefulWidget {
   EditEntry({
     Key key,
     this.onEdit,
     @required this.entry,
-    @required this.nameKey,
-    @required this.vaultKey,
   }) : super(key: key);
 
-  final Future Function(Map<String, dynamic> input) onEdit;
+  final Future Function(Entry entry) onEdit;
   final Entry entry;
-  final String nameKey;
-  final String vaultKey;
 
   @override
   _EditEntry createState() => _EditEntry();
@@ -50,11 +47,9 @@ class _EditEntry extends State<EditEntry> {
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            Map<String, dynamic> input = {
-              this.widget.nameKey: nameInput.text,
-            };
-            if (vaultInput.text != "") input["vault"] = vaultInput.text;
-            await widget.onEdit(input);
+            await StoreInjector.of(context).updateEntry(this.widget.entry, name: nameInput.text);
+            Entry entry = await StoreInjector.of(context).getEntry(this.widget.entry.id);
+            await widget.onEdit(entry);
             Navigator.of(context).pop();
           },
         ),

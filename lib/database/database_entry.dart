@@ -25,13 +25,7 @@ abstract class DatabaseEntry {
     return entries;
   }
 
-  static Future<int> create(DatabaseExecutor db, int type, String data, int position, int vault) async {
-    Map<String, dynamic> map = {
-      DatabaseEntry.columnType : type,
-      DatabaseEntry.columnData : data,
-      DatabaseEntry.columnPosition : position,
-      DatabaseEntry.columnVault : vault,
-    };
+  static Future<int> create(DatabaseExecutor db, Map<String, dynamic> map) async {
     return db.insert(table, map);
   }
 

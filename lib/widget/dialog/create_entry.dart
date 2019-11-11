@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 
 class CreateEntry extends StatefulWidget {
   CreateEntry({
     Key key,
     @required this.onCreate,
-    @required this.typeKey,
-    @required this.nameKey,
-    @required this.secretKey,
-    @required this.vaultKey,
   }) : super(key: key);
 
-  final Future Function(Map<String, dynamic> input) onCreate;
-  final String typeKey;
-  final String nameKey;
-  final String secretKey;
-  final String vaultKey;
+  final Future Function(int id) onCreate;
 
   @override
   _CreateEntry createState() => _CreateEntry();
@@ -52,13 +46,13 @@ class _CreateEntry extends State<CreateEntry> {
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            Map<String, dynamic> input = {
-              this.widget.typeKey: EntryType.totp,
-              this.widget.nameKey: nameInput.text,
-              this.widget.secretKey: secretInput.text,
-            };
-            if (vaultInput.text != "") input[this.widget.vaultKey] = vaultInput.text;
-            await widget.onCreate(input);
+            int vault = vaultInput.text != "" ?
+              await StoreInjector.of(context).getOrCreateVault(vaultInput.text) :
+              VaultEntry.rootId;
+            int id = await StoreInjector.of(context).createEntry(
+              EntryType.totp, vault, name: nameInput.text, secret: secretInput.text, timestep: 30
+            );
+            await widget.onCreate(id);
             Navigator.of(context).pop();
           },
         ),

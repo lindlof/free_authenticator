@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
-import 'package:free_authenticator/factory/entry_factory.dart';
-import 'package:free_authenticator/factory/vault_factory.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 import 'dialog/delete_entry.dart';
 import 'dialog/edit_entry.dart';
 import 'select_route.dart';
@@ -35,12 +34,13 @@ class _EntryList extends State<EntryList> {
   }
 
   _init() async {
-    this.vault = await EntryFactory.get(this.widget.vaultId);
     this._loadEntries();
   }
 
   _loadEntries() async {
-    final entries = await EntryFactory.getEntries(this.vault.id, this._nextPosition);
+    await Future.delayed(Duration.zero);
+    if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
+    final entries = await StoreInjector.of(context).getEntries(this.vault.id, this._nextPosition);
     setState(() {
       this.entries.addAll(entries);
     });
@@ -51,23 +51,14 @@ class _EntryList extends State<EntryList> {
       context: context,
       builder: (context) {
         return CreateEntry(
-          onCreate: (Map<String, dynamic> input) async {
-            String inputVault = input["vault"];
-            int vault = input.containsKey("vault") ?
-              await VaultFactory.getOrCreate(inputVault) :
-              VaultEntry.rootId;
-            await EntryFactory.create(input, vault);
-            Entry entry = await EntryFactory.getEntry(this._nextPosition, this.vault.id);
+          onCreate: (int id) async {
+            Entry entry = await StoreInjector.of(context).getEntryInPosition(this._nextPosition, this.vault.id);
             if (entry != null) {
               setState(() {
                 this.entries.add(entry);
               });
             }
           },
-          nameKey: EntryFactory.jsonName,
-          typeKey: EntryFactory.jsonType,
-          secretKey: EntryFactory.jsonType,
-          vaultKey: "vault",
         );
       });
   }
@@ -78,16 +69,12 @@ class _EntryList extends State<EntryList> {
       builder: (context) {
         return EditEntry(
           entry: selected,
-          onEdit: (Map<String, dynamic> input) async {
-            await EntryFactory.update(selected, input);
-            Entry entry = await EntryFactory.getEntry(selected.position, selected.vault); // TODO get by id
+          onEdit: (Entry entry) async {
             setState(() {
               this.selected = null;
               this.entries.replaceRange(entry.position-1, entry.position, [entry]);
             });
           },
-          nameKey: EntryFactory.jsonName,
-          vaultKey: "vault",
         );
       });
   }
