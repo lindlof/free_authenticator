@@ -7,7 +7,7 @@ class StoreInjector extends InheritedWidget {
   final Future<List<Entry>> Function(int vault, int fromPosition) getEntries;
   final Future<int> Function(EntryType type, int vault, {String name, String secret, int timestep}) createEntry;
   final Future<Entry> Function(int position, int vault) getEntryInPosition;
-  final Future<void> Function(Entry entry, {String name, String secret, int timestep}) updateEntry;
+  final Future<void> Function(Entry entry, {int vault, String name, String secret, int timestep}) updateEntry;
   final Future<int> Function(String name) getOrCreateVault;
 
   StoreInjector({

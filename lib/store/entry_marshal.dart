@@ -15,12 +15,12 @@ class EntryMarshal {
     EntryType.totp: DatabaseEntry.totpTypeId,
   };
 
-  static Map<String, dynamic> marshal(EntryType type, int position, int vault, String data) {
+  static Map<String, dynamic> marshal(EntryType type, int position, int vault, String data, {Entry entry}) {
     Map<String, dynamic> map = {
       DatabaseEntry.columnType : _typeId[type],
       DatabaseEntry.columnData : data,
-      DatabaseEntry.columnPosition : position,
-      DatabaseEntry.columnVault : vault,
+      DatabaseEntry.columnPosition : _val("position", position, entry?.position),
+      DatabaseEntry.columnVault : _val("vault", vault, entry?.vault),
     };
     return map;
   }
@@ -29,20 +29,14 @@ class EntryMarshal {
       EntryType type,
       {String name, String secret, int timestep, Entry entry}
     ) {
-    final val = (String attr, dynamic value1, dynamic value2) {
-      if (value1 == null && value2 == null)
-        throw ArgumentError("Missing required data $attr for type $EntryTypeName[type]");
-      return value1 != null ? value1 : value2;
-    };
-    
     Map<String, dynamic> data = {
-      _name: val("name", name, entry?.name),
+      _name: _val("name", name, entry?.name),
     };
 
     if (type == EntryType.totp) {
       TOTP totp = entry as TOTP;
-      data[_secret] = val("secret", secret, totp?.secret);
-      data[_timestep] = val("timestep", timestep, totp?.timeStep);
+      data[_secret] = _val("secret", secret, totp?.secret);
+      data[_timestep] = _val("timestep", timestep, totp?.timeStep);
     } else if (type == EntryType.vault) {
     } else {
       throw ArgumentError("SecretFactory does not produce " + EntryTypeDesc[type]);
@@ -71,5 +65,10 @@ class EntryMarshal {
       return Vault(id, name, position, vault);
     }
     throw StateError("Unknown type " + type.toString());
+  }
+
+  static _val(String field, dynamic value1, dynamic value2) {
+    if (value1 == null && value2 == null) throw ArgumentError("Missing field $field");
+    return value1 != null ? value1 : value2;
   }
 }

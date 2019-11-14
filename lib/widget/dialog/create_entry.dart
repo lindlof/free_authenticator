@@ -46,14 +46,13 @@ class _CreateEntry extends State<CreateEntry> {
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            int vault = vaultInput.text != "" ?
-              await StoreInjector.of(context).getOrCreateVault(vaultInput.text) :
-              VaultEntry.rootId;
+            int vault = vaultInput.text == "" ? VaultEntry.rootId :
+              await StoreInjector.of(context).getOrCreateVault(vaultInput.text);
             int id = await StoreInjector.of(context).createEntry(
               EntryType.totp, vault, name: nameInput.text, secret: secretInput.text, timestep: 30
             );
-            await widget.onCreate(id);
             Navigator.of(context).pop();
+            await widget.onCreate(id);
           },
         ),
         new FlatButton(

@@ -27,8 +27,8 @@ class _DeleteEntry extends State<DeleteEntry> {
         new FlatButton(
           child: new Text('Delete'),
           onPressed: () async {
-            this.widget.onDelete(this.widget.entry.id);
             Navigator.of(context).pop();
+            this.widget.onDelete(this.widget.entry.id);
           },
         ),
         new FlatButton(

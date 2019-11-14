@@ -48,15 +48,20 @@ class EntryStore {
 
   static Future<void> update(
       Entry entry,
-      {String name, String secret, int timestep}
+      {int position, int vault, String name, String secret, int timestep}
     ) async {
     final db = await DbFactory.database;
     Map<String, dynamic> data = EntryMarshal.marshalData(
       entry.type,
       name: name, secret: secret, timestep: timestep, entry: entry
     );
-
     var encryptedData = await KeychainHelper.encryptJson(data);
-    await DatabaseEntry.updateData(db, entry.id, encryptedData);
+
+    if (vault != null && vault != entry.vault) {
+      position = await DatabaseEntry.nextPosition(db, vault);
+    }
+
+    Map<String, dynamic> map = EntryMarshal.marshal(entry.type, position, vault, encryptedData, entry: entry);
+    await DatabaseEntry.update(db, entry.id, map);
   }
 }

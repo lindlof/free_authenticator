@@ -29,10 +29,7 @@ abstract class DatabaseEntry {
     return db.insert(table, map);
   }
 
-  static Future<int> updateData(DatabaseExecutor db, int id, String data) async {
-    Map<String, dynamic> map = {
-      DatabaseEntry.columnData : data,
-    };
+  static Future<int> update(DatabaseExecutor db, int id, Map<String, dynamic> map) async {
     return db.update(
       table, map,
       where: "$columnId = ?", whereArgs: [id]);

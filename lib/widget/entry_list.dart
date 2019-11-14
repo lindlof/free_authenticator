@@ -23,7 +23,7 @@ class EntryList extends StatefulWidget {
 }
 
 class _EntryList extends State<EntryList> {
-  final entries = <Entry>[];
+  var entries = <Entry>[];
   Entry selected;
   Entry vault;
 
@@ -40,9 +40,9 @@ class _EntryList extends State<EntryList> {
   _loadEntries() async {
     await Future.delayed(Duration.zero);
     if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
-    final entries = await StoreInjector.of(context).getEntries(this.vault.id, this._nextPosition);
+    final entries = await StoreInjector.of(context).getEntries(this.vault.id, 0);
     setState(() {
-      this.entries.addAll(entries);
+      this.entries = entries;
     });
   }
 
@@ -52,12 +52,7 @@ class _EntryList extends State<EntryList> {
       builder: (context) {
         return CreateEntry(
           onCreate: (int id) async {
-            Entry entry = await StoreInjector.of(context).getEntryInPosition(this._nextPosition, this.vault.id);
-            if (entry != null) {
-              setState(() {
-                this.entries.add(entry);
-              });
-            }
+            _loadEntries();
           },
         );
       });
@@ -70,9 +65,9 @@ class _EntryList extends State<EntryList> {
         return EditEntry(
           entry: selected,
           onEdit: (Entry entry) async {
+            this._deselect();
             setState(() {
-              this.selected = null;
-              this.entries.replaceRange(entry.position-1, entry.position, [entry]);
+              this._loadEntries();
             });
           },
         );
@@ -86,7 +81,7 @@ class _EntryList extends State<EntryList> {
         return DeleteEntry(
           entry: selected,
           onDelete: (int id) async {
-            this.selected = null;
+            this._deselect();
             this.setState(() {
               this.entries.removeWhere((e) => e.id == id);
             });
@@ -95,7 +90,6 @@ class _EntryList extends State<EntryList> {
       });
   }
 
-  int get _nextPosition => this.entries.length + 1;
   Key get _selectedKey => this.selected == null ? null : ValueKey(this.selected.id);
 
   _openVault(int id) async {
@@ -106,7 +100,6 @@ class _EntryList extends State<EntryList> {
   }
 
   _onSelect(Entry entry) {
-    Navigator.of(context).popUntil((route) => route is! SelectRoute);
     var selectRoute = SelectRoute(onRemove: () {
       setState(() {
         this.selected = null;
@@ -116,6 +109,11 @@ class _EntryList extends State<EntryList> {
     setState(() {
       this.selected = entry;
     });
+  }
+
+  _deselect() {
+    print("deselect");
+    Navigator.of(context).popUntil((route) {print(route); return route is! SelectRoute;});
   }
 
   bool _reorderCallback(Key item, Key newPosition) {

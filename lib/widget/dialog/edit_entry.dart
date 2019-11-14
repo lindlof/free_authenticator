@@ -47,10 +47,12 @@ class _EditEntry extends State<EditEntry> {
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            await StoreInjector.of(context).updateEntry(this.widget.entry, name: nameInput.text);
+            int vault = vaultInput.text == "" ? null :
+              await StoreInjector.of(context).getOrCreateVault(vaultInput.text);
+            await StoreInjector.of(context).updateEntry(this.widget.entry, name: nameInput.text, vault: vault);
             Entry entry = await StoreInjector.of(context).getEntry(this.widget.entry.id);
-            await widget.onEdit(entry);
             Navigator.of(context).pop();
+            await widget.onEdit(entry);
           },
         ),
         new FlatButton(
