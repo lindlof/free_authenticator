@@ -31,12 +31,13 @@ class EntryStore {
 
   static Future<List<Entry>> getEntries(int vault, { int limit, int offset }) async {
     final db = await DbFactory.database;
+    List<Entry> rEntries = [];
     List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(db, vault, limit: limit, offset: offset);
     if (entries.isNotEmpty) {
-      var fEntries = entries.map((e) => EntryMarshal.unmarshal(e)).toList();
-      return await Future.wait(fEntries);
+      var fEntries = entries.map((e) => EntryMarshal.unmarshal(e)).toList(growable: true);
+      rEntries.addAll(await Future.wait(fEntries));
     }
-    return [];
+    return rEntries;
   }
 
   static Future<Entry> getEntryInPosition(int position, int vault) async {
