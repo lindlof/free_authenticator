@@ -8,18 +8,22 @@ class ReorderableListSelect<T> extends StatefulWidget {
     @required this.itemCount,
     @required this.indexItemBuilder,
     @required this.onReorder,
+    @required this.onReorderDone,
   });
   
   final Key selected;
   final int itemCount;
   final Widget Function(int) indexItemBuilder;
   final bool Function(Key, Key) onReorder;
+  final void Function(Key, Key) onReorderDone;
 
   @override
   State<ReorderableListSelect> createState() => new _ReorderableListSelectState();
 }
 
 class _ReorderableListSelectState extends State<ReorderableListSelect> {
+  Key lastReorderPosition;
+
   @override
   Widget build(BuildContext context) {
     return ReorderableList(
@@ -30,7 +34,13 @@ class _ReorderableListSelectState extends State<ReorderableListSelect> {
           return ReorderableItemSelect(key: item.key, innerItem: item, isSelected: item.key == this.widget.selected);
         },
       ),
-      onReorder: this.widget.onReorder,
+      onReorder: (item, newPosition) {
+        this.lastReorderPosition = newPosition;
+        return this.widget.onReorder(item, newPosition);
+      },
+      onReorderDone: (item) {
+        return this.widget.onReorderDone(item, lastReorderPosition);
+      },
     );
   }
 }

@@ -6,8 +6,8 @@ class StoreInjector extends InheritedWidget {
   final Future<Entry> Function(int id) getEntry;
   final Future<List<Entry>> Function(int vault, { int limit, int offset }) getEntries;
   final Future<int> Function(EntryType type, int vault, {String name, String secret, int timestep}) createEntry;
-  final Future<Entry> Function(int position, int vault) getEntryInPosition;
   final Future<void> Function(Entry entry, {int vault, String name, String secret, int timestep}) updateEntry;
+  final Future<void> Function(int id, int position) reorderEntry;
   final Future<int> Function(String name) getOrCreateVault;
 
   StoreInjector({
@@ -16,8 +16,8 @@ class StoreInjector extends InheritedWidget {
     @required this.getEntry,
     @required this.getEntries,
     @required this.createEntry,
-    @required this.getEntryInPosition,
     @required this.updateEntry,
+    @required this.reorderEntry,
     @required this.getOrCreateVault,
   }) : assert(child != null),
         super(key: key, child: child);

@@ -46,17 +46,22 @@ abstract class DatabaseEntry {
     return entries;
   }
 
-  static Future<Map<String, dynamic>> getEntry(DatabaseExecutor db, int position, int vault) async {
-    final entries = await db.query(
-      DatabaseEntry.table,
-      where: "${DatabaseEntry.columnPosition} = ? AND ${DatabaseEntry.columnVault} = ?",
-      whereArgs: [position, vault],
-      orderBy: DatabaseEntry.columnPosition);
-    return entries.length < 1 ? null : entries[0];
+  static Future<int> entryUpdatePositions(
+      DatabaseExecutor db, int vault, int fromPosition, int toPosition, bool add
+    ) async {
+    String op = add ? "+" : "-";
+    int count = await db.rawUpdate(
+      "UPDATE ${DatabaseEntry.table} " +
+      "SET ${DatabaseEntry.columnPosition} = ${DatabaseEntry.columnPosition} $op 1 " +
+      "WHERE ${DatabaseEntry.columnVault} = ? AND " +
+      "${DatabaseEntry.columnPosition} >= ? AND " +
+      "${DatabaseEntry.columnPosition} <= ?",
+      [vault, fromPosition, toPosition]);
+    return count;
   }
 
   static Future<int> nextPosition(DatabaseExecutor db, int vault) async {
     final x = await db.rawQuery('SELECT MAX(${DatabaseEntry.columnPosition}) AS position FROM ${DatabaseEntry.table} WHERE ${DatabaseEntry.columnVault} = $vault;');
-    return ((x[0]['position'] as int) ?? 0) + 1;
+    return ((x[0]['position'] as int) ?? 0) + 1; // TODO magic number, should be ENTRY_MIN_POSITION
   }
 }

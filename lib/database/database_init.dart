@@ -6,7 +6,7 @@ class DatabaseInit {
   static final _databaseVersion = 1;
   
   // this opens the database (and creates it if it doesn't exist)
-  static initDatabase(
+  static Future<Database> initDatabase(
       Future<Map<String, dynamic>> Function() getRootVault) async {
     return await openDatabase(_databaseName,
         version: _databaseVersion,

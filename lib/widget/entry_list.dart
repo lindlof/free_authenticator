@@ -128,6 +128,14 @@ class _EntryList extends State<EntryList> {
     return true;
   }
 
+  _reorderDone(Key item, Key lastPosition) {
+    int draggingIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == item);
+    int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
+    final draggedItem = entries[draggingIndex];
+    final newPositionItem = entries[newPositionIndex];
+    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,6 +171,7 @@ class _EntryList extends State<EntryList> {
             );
           },
           onReorder: this._reorderCallback,
+          onReorderDone: this._reorderDone,
         ),
       ),
       floatingActionButton: FloatingActionButton(

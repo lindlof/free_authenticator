@@ -24,7 +24,7 @@ class EntryStore {
     Map<String, dynamic> data = EntryMarshal.marshalData(type, name: name, secret: secret, timestep: timestep);
     String encryptedData = await KeychainHelper.encryptJson(data);
 
-    Map<String, dynamic> map = EntryMarshal.marshal(type, position, vault, encryptedData);
+    Map<String, dynamic> map = EntryMarshal.marshal(type, encryptedData, position: position, vault: vault);
     int id = await DatabaseEntry.create(db, map);
     return id;
   }
@@ -38,13 +38,6 @@ class EntryStore {
       rEntries.addAll(await Future.wait(fEntries));
     }
     return rEntries;
-  }
-
-  static Future<Entry> getEntryInPosition(int position, int vault) async {
-    final db = await DbFactory.database;
-    Map<String, dynamic> entry = await DatabaseEntry.getEntry(db, position, vault);
-    if (entry == null) return null;
-    return EntryMarshal.unmarshal(entry);
   }
 
   static Future<void> update(
@@ -62,7 +55,34 @@ class EntryStore {
       position = await DatabaseEntry.nextPosition(db, vault);
     }
 
-    Map<String, dynamic> map = EntryMarshal.marshal(entry.type, position, vault, encryptedData, entry: entry);
+    Map<String, dynamic> map = EntryMarshal.marshal(
+      entry.type, encryptedData, position: position, vault: vault, entry: entry);
     await DatabaseEntry.update(db, entry.id, map);
+  }
+
+  static Future<void> reorder(int id, int position) async {
+    final entry = await EntryStore.get(id);
+    if (position == entry.position) return;
+
+    Map<String, dynamic> data = EntryMarshal.marshalData(entry.type, entry: entry);
+    var encryptedData = await KeychainHelper.encryptJson(data);
+    Map<String, dynamic> mapFreePos = EntryMarshal.marshal(
+      entry.type, encryptedData, position: -1, entry: entry);
+    Map<String, dynamic> map = EntryMarshal.marshal(
+      entry.type, encryptedData, position: position, entry: entry);
+
+    await (await DbFactory.database).transaction((txn) async {
+      if (position < entry.position) {
+        // Entry was reordered up
+        DatabaseEntry.update(txn, id, mapFreePos);
+        DatabaseEntry.entryUpdatePositions(txn, entry.vault, position, entry.position-1, true);
+        DatabaseEntry.update(txn, id, map);
+      } else {
+        // Entry was reordered down
+        DatabaseEntry.update(txn, id, mapFreePos);
+        DatabaseEntry.entryUpdatePositions(txn, entry.vault, entry.position+1, position, false);
+        DatabaseEntry.update(txn, id, map);
+      }
+    });
   }
 }

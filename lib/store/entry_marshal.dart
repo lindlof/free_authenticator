@@ -15,7 +15,7 @@ class EntryMarshal {
     EntryType.totp: DatabaseEntry.totpTypeId,
   };
 
-  static Map<String, dynamic> marshal(EntryType type, int position, int vault, String data, {Entry entry}) {
+  static Map<String, dynamic> marshal(EntryType type, String data, {int position, int vault, Entry entry}) {
     Map<String, dynamic> map = {
       DatabaseEntry.columnType : _typeId[type],
       DatabaseEntry.columnData : data,

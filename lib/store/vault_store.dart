@@ -40,7 +40,8 @@ class VaultStore {
 
     Map<String, dynamic> data = EntryMarshal.marshalData(EntryType.vault, name: name);
     String encryptedData = await KeychainHelper.encryptJson(data);
-    Map<String, dynamic> map = EntryMarshal.marshal(EntryType.vault, position, Vault.rootId, encryptedData);
+    Map<String, dynamic> map = EntryMarshal.marshal(
+      EntryType.vault, encryptedData, position: position, vault: Vault.rootId);
 
     int vaultId = await DatabaseEntry.create(db, map);
     return Vault(

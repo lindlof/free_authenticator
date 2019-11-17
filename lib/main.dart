@@ -10,8 +10,8 @@ void main() {
     getEntry: EntryStore.get,
     getEntries: EntryStore.getEntries,
     createEntry: EntryStore.create,
-    getEntryInPosition: EntryStore.getEntryInPosition,
     updateEntry: EntryStore.update,
+    reorderEntry: EntryStore.reorder,
     getOrCreateVault: VaultStore.getOrCreate,
   );
 	runApp(injector);
