@@ -112,7 +112,6 @@ class _EntryList extends State<EntryList> {
   }
 
   _deselect() {
-    print("deselect");
     Navigator.of(context).popUntil((route) {print(route); return route is! SelectRoute;});
   }
 
@@ -133,7 +132,8 @@ class _EntryList extends State<EntryList> {
     int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
     final draggedItem = entries[draggingIndex];
     final newPositionItem = entries[newPositionIndex];
-    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position);
+    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position)
+      .then((x) { this._deselect(); this._loadEntries(); });
   }
 
   @override

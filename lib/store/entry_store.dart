@@ -66,22 +66,18 @@ class EntryStore {
 
     Map<String, dynamic> data = EntryMarshal.marshalData(entry.type, entry: entry);
     var encryptedData = await KeychainHelper.encryptJson(data);
-    Map<String, dynamic> mapFreePos = EntryMarshal.marshal(
-      entry.type, encryptedData, position: -1, entry: entry);
     Map<String, dynamic> map = EntryMarshal.marshal(
       entry.type, encryptedData, position: position, entry: entry);
 
     await (await DbFactory.database).transaction((txn) async {
       if (position < entry.position) {
         // Entry was reordered up
-        DatabaseEntry.update(txn, id, mapFreePos);
-        DatabaseEntry.entryUpdatePositions(txn, entry.vault, position, entry.position-1, true);
-        DatabaseEntry.update(txn, id, map);
+        await DatabaseEntry.entryUpdatePositions(txn, entry.vault, position, entry.position-1, true);
+        await DatabaseEntry.update(txn, id, map);
       } else {
         // Entry was reordered down
-        DatabaseEntry.update(txn, id, mapFreePos);
-        DatabaseEntry.entryUpdatePositions(txn, entry.vault, entry.position+1, position, false);
-        DatabaseEntry.update(txn, id, map);
+        await DatabaseEntry.entryUpdatePositions(txn, entry.vault, entry.position+1, position, false);
+        await DatabaseEntry.update(txn, id, map);
       }
     });
   }

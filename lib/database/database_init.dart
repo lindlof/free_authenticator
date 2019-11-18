@@ -31,8 +31,7 @@ class DatabaseInit {
               $data TEXT NOT NULL,
               $position INTEGER NOT NULL,
               $vault INTEGER,
-              FOREIGN KEY($vault) REFERENCES $table($id),
-              UNIQUE($position,$vault)
+              FOREIGN KEY($vault) REFERENCES $table($id)
             );
             ''');
       
