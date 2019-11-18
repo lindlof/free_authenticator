@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/store/entry_store.dart';
+import 'package:free_authenticator/store/vault_store.dart';
 import 'package:free_authenticator/widget/entry_list.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 
 void main() {
-  runApp(FreeAuthenticatorApp());
+  var injector = StoreInjector(
+    child : FreeAuthenticatorApp(),
+    getEntry: EntryStore.get,
+    getEntries: EntryStore.getEntries,
+    createEntry: EntryStore.create,
+    updateEntry: EntryStore.update,
+    deleteEntry: EntryStore.delete,
+    reorderEntry: EntryStore.reorder,
+    getOrCreateVault: VaultStore.getOrCreate,
+  );
+	runApp(injector);
 }
 
 class FreeAuthenticatorApp extends StatelessWidget {

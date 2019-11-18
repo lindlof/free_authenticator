@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
-import 'package:free_authenticator/factory/entry_factory.dart';
-import 'package:free_authenticator/factory/vault_factory.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
+import 'package:free_authenticator/widget/reorderable_list.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
+import 'dialog/delete_entry.dart';
+import 'dialog/edit_entry.dart';
+import 'select_route.dart';
 
 class EntryList extends StatefulWidget {
   final String title;
@@ -20,7 +23,8 @@ class EntryList extends StatefulWidget {
 }
 
 class _EntryList extends State<EntryList> {
-  final entries = <Entry>[];
+  var entries = <Entry>[];
+  Entry selected;
   Entry vault;
 
   @override
@@ -30,14 +34,15 @@ class _EntryList extends State<EntryList> {
   }
 
   _init() async {
-    this.vault = await EntryFactory.get(this.widget.vaultId);
     this._loadEntries();
   }
 
   _loadEntries() async {
-    final entries = await EntryFactory.getEntries(this.vault.id, this._nextPosition);
+    await Future.delayed(Duration.zero);
+    if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
+    final entries = await StoreInjector.of(context).getEntries(this.vault.id);
     setState(() {
-      this.entries.addAll(entries);
+      this.entries = entries;
     });
   }
 
@@ -46,24 +51,44 @@ class _EntryList extends State<EntryList> {
       context: context,
       builder: (context) {
         return CreateEntry(
-          onCreate: (Map<String, dynamic> input) async {
-            String inputVault = input["vault"];
-            int vault = input.containsKey("vault") ?
-              await VaultFactory.getOrCreate(inputVault) :
-              VaultEntry.rootId;
-            await EntryFactory.create(input, vault);
-            Entry entry = await EntryFactory.getEntry(this._nextPosition, this.vault.id);
-            if (entry != null) {
-              setState(() {
-                this.entries.add(entry);
-              });
-            }
+          onCreate: (int id) async {
+            _loadEntries();
+          },
+        );
+      });
+  }
+
+  _editEntry(Entry selected) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return EditEntry(
+          entry: selected,
+          onEdit: (Entry entry) async {
+            this._deselect();
+            setState(() {
+              this._loadEntries();
+            });
+          },
+        );
+      });
+  }
+
+  _deleteEntry(Entry selected) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return DeleteEntry(
+          entry: selected,
+          onDelete: (int id) async {
+            this._deselect();
+            this._loadEntries();
           }
         );
       });
   }
 
-  int get _nextPosition => this.entries.length + 1;
+  Key get _selectedKey => this.selected == null ? null : ValueKey(this.selected.id);
 
   _openVault(int id) async {
     EntryList newRoute = EntryList(title: 'One-time Passwords', vaultId: id);
@@ -72,19 +97,79 @@ class _EntryList extends State<EntryList> {
       .then((dynamic v) => _loadEntries());
   }
 
+  _onSelect(Entry entry) {
+    var selectRoute = SelectRoute(onRemove: () {
+      setState(() {
+        this.selected = null;
+      });
+    });
+    Navigator.of(context).push(selectRoute);
+    setState(() {
+      this.selected = entry;
+    });
+  }
+
+  _deselect() {
+    Navigator.of(context).popUntil((route) {print(route); return route is! SelectRoute;});
+  }
+
+  bool _reorderCallback(Key item, Key newPosition) {
+    int draggingIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == item);
+    int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == newPosition);
+    final draggedItem = entries[draggingIndex];
+
+    this.setState(() {
+      entries.removeAt(draggingIndex);
+      entries.insert(newPositionIndex, draggedItem);
+    });
+    return true;
+  }
+
+  _reorderDone(Key item, Key lastPosition) {
+    int draggingIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == item);
+    int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
+    final draggedItem = entries[draggingIndex];
+    final newPositionItem = entries[newPositionIndex];
+    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position)
+      .then((x) { this._deselect(); this._loadEntries(); });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        leading: this.selected == null ? null : new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        actions: this.selected == null ? null : <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.edit),
+            onPressed: () => _editEntry(this.selected),
+          ),
+          new IconButton(
+            icon: new Icon(Icons.delete),
+            highlightColor: Colors.red,
+            onPressed: () => _deleteEntry(this.selected),
+          ),
+        ],
+        title: this.selected != null ? Text(this.selected.name) : Text(widget.title),
       ),
       body: Center(
-        child: ListView.builder(
+        child: ReorderableListSelect(
+          selected: _selectedKey,
           itemCount: this.entries.length,
-          itemBuilder: (context, int) {
-            var entry = entries[int];
-            return EntryWidgetFactory.create(entry, this._openVault);
+          indexItemBuilder: (int index) {
+            Entry entry = entries[index];
+            return EntryWidgetFactory.create(
+              entry,
+              ValueKey(entry.id) == _selectedKey,
+              this._onSelect,
+              this._openVault
+            );
           },
+          onReorder: this._reorderCallback,
+          onReorderDone: this._reorderDone,
         ),
       ),
       floatingActionButton: FloatingActionButton(

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 
 class CreateEntry extends StatefulWidget {
-  CreateEntry({Key key, this.onCreate}) : super(key: key);
+  CreateEntry({
+    Key key,
+    @required this.onCreate,
+  }) : super(key: key);
 
-  final Future Function(Map<String, dynamic> input) onCreate;
+  final Future Function(int id) onCreate;
 
   @override
   _CreateEntry createState() => _CreateEntry();
@@ -41,14 +46,13 @@ class _CreateEntry extends State<CreateEntry> {
         new FlatButton(
           child: new Text('Ok'),
           onPressed: () async {
-            Map<String, dynamic> input = {
-              "type": EntryType.totp,
-              "name": nameInput.text,
-              "secret": secretInput.text,
-            };
-            if (vaultInput.text != "") input["vault"] = vaultInput.text;
-            await widget.onCreate(input);
+            int vault = vaultInput.text == "" ? VaultEntry.rootId :
+              await StoreInjector.of(context).getOrCreateVault(vaultInput.text);
+            int id = await StoreInjector.of(context).createEntry(
+              EntryType.totp, vault, name: nameInput.text, secret: secretInput.text, timestep: 30
+            );
             Navigator.of(context).pop();
+            await widget.onCreate(id);
           },
         ),
         new FlatButton(

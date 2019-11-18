@@ -6,9 +6,9 @@ import 'package:sqflite/sqlite_api.dart';
 
 class DbFactory {
   // only have a single app-wide reference to the database
-  static DatabaseExecutor _database;
+  static Database _database;
 
-  static Future<DatabaseExecutor> get database async {
+  static Future<Database> get database async {
     if (_database != null) return _database;
     // lazily instantiate the db the first time it is accessed
     _database = await DatabaseInit.initDatabase(getRootVault);
@@ -29,7 +29,7 @@ class DbFactory {
       "$id": "${VaultEntry.rootId}",
       "$type": "${DatabaseEntry.vaultTypeId}",
       "$data": "$encryptedData",
-      "$position": "1",
+      "$position": "1", // TODO magic number, should be ENTRY_MIN_POSITION
     };
     return rootEntry;
   }
