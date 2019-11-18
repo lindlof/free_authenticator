@@ -60,6 +60,11 @@ class EntryStore {
     await DatabaseEntry.update(db, entry.id, map);
   }
 
+  static Future<void> delete(int id) async {
+    final db = await DbFactory.database;
+    await DatabaseEntry.delete(db, id);
+  }
+
   static Future<void> reorder(int id, int position) async {
     final entry = await EntryStore.get(id);
     if (position == entry.position) return;

@@ -60,6 +60,13 @@ abstract class DatabaseEntry {
     return count;
   }
 
+  static Future<int> delete(DatabaseExecutor db, int id) async {
+    return db.delete(
+      table,
+      where: "$columnId = ?", whereArgs: [id]
+    );
+  }
+
   static Future<int> nextPosition(DatabaseExecutor db, int vault) async {
     final x = await db.rawQuery('SELECT MAX(${DatabaseEntry.columnPosition}) AS position FROM ${DatabaseEntry.table} WHERE ${DatabaseEntry.columnVault} = $vault;');
     return ((x[0]['position'] as int) ?? 0) + 1; // TODO magic number, should be ENTRY_MIN_POSITION

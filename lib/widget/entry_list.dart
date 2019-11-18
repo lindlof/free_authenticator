@@ -82,9 +82,7 @@ class _EntryList extends State<EntryList> {
           entry: selected,
           onDelete: (int id) async {
             this._deselect();
-            this.setState(() {
-              this.entries.removeWhere((e) => e.id == id);
-            });
+            this._loadEntries();
           }
         );
       });

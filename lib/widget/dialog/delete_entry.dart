@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/widget/store_injector.dart';
 
 class DeleteEntry extends StatefulWidget {
   DeleteEntry({
@@ -27,6 +28,7 @@ class _DeleteEntry extends State<DeleteEntry> {
         new FlatButton(
           child: new Text('Delete'),
           onPressed: () async {
+            await StoreInjector.of(context).deleteEntry(this.widget.entry.id);
             Navigator.of(context).pop();
             this.widget.onDelete(this.widget.entry.id);
           },

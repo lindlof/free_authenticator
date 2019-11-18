@@ -11,6 +11,7 @@ void main() {
     getEntries: EntryStore.getEntries,
     createEntry: EntryStore.create,
     updateEntry: EntryStore.update,
+    deleteEntry: EntryStore.delete,
     reorderEntry: EntryStore.reorder,
     getOrCreateVault: VaultStore.getOrCreate,
   );
