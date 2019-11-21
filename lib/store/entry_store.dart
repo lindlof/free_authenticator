@@ -29,10 +29,16 @@ class EntryStore {
     return id;
   }
 
-  static Future<List<Entry>> getEntries(int vault, { int limit, int offset }) async {
+  static Future<List<Entry>> getEntries({ EntryType type, int vault, int limit, int offset }) async {
     final db = await DbFactory.database;
     List<Entry> rEntries = [];
-    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(db, vault, limit: limit, offset: offset);
+    List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(
+      db,
+      type: type == null ? null : EntryMarshal.typeId[type],
+      vault: vault,
+      limit: limit,
+      offset: offset
+    );
     if (entries.isNotEmpty) {
       var fEntries = entries.map((e) => EntryMarshal.unmarshal(e)).toList(growable: true);
       rEntries.addAll(await Future.wait(fEntries));

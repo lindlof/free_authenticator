@@ -35,11 +35,21 @@ abstract class DatabaseEntry {
       where: "$columnId = ?", whereArgs: [id]);
   }
 
-  static Future<List<Map<String, dynamic>>> getEntries(DatabaseExecutor db, int vault, { int limit, int offset }) async {
+  static Future<List<Map<String, dynamic>>> getEntries(DatabaseExecutor db, { int type, int vault, int limit, int offset }) async {
+    var where = [];
+    var whereArgs = [];
+    if (type != null) {
+      where.add("${DatabaseEntry.columnType} = ?");
+      whereArgs.add(type);
+    }
+    if (vault != null) {
+      where.add("${DatabaseEntry.columnVault} = ?");
+      whereArgs.add(vault);
+    }
     final entries = await db.query(
       DatabaseEntry.table,
-      where: "${DatabaseEntry.columnVault} = ?",
-      whereArgs: [vault],
+      where: where.join(" AND "),
+      whereArgs: whereArgs,
       limit: limit,
       offset: offset,
       orderBy: DatabaseEntry.columnPosition);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/widget/dialog/vault_field.dart';
 import 'package:free_authenticator/widget/store_injector.dart';
 
 class CreateEntry extends StatefulWidget {
@@ -36,9 +37,9 @@ class _CreateEntry extends State<CreateEntry> {
             controller: secretInput,
             decoration: InputDecoration(hintText: "Secret"),
           ),
-          TextField(
-            controller: vaultInput,
+          VaultField(
             decoration: InputDecoration(hintText: "Vault"),
+            controller: vaultInput,
           ),
         ],
       ),
