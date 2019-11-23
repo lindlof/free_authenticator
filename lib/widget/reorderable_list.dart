@@ -39,7 +39,9 @@ class _ReorderableListSelectState extends State<ReorderableListSelect> {
         return this.widget.onReorder(item, newPosition);
       },
       onReorderDone: (item) {
-        return this.widget.onReorderDone(item, lastReorderPosition);
+        var last = this.lastReorderPosition;
+        this.lastReorderPosition = null;
+        return this.widget.onReorderDone(item, last);
       },
     );
   }

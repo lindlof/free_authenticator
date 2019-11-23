@@ -126,6 +126,7 @@ class _EntryList extends State<EntryList> {
   }
 
   _reorderDone(Key item, Key lastPosition) {
+    if (lastPosition == null) return;
     int draggingIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == item);
     int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
     final draggedItem = entries[draggingIndex];
