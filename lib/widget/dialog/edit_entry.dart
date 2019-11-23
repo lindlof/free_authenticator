@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/widget/dialog/vault_field.dart';
 import 'package:free_authenticator/widget/store_injector.dart';
 
 class EditEntry extends StatefulWidget {
@@ -37,9 +38,10 @@ class _EditEntry extends State<EditEntry> {
             controller: nameInput,
             decoration: InputDecoration(hintText: "Name"),
           ),
-          TextField(
+          VaultField(
             controller: vaultInput,
             decoration: InputDecoration(hintText: "Vault"),
+            entry: this.widget.entry,
           ),
         ],
       ),

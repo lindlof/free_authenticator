@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:free_authenticator/model/interface/entry_type.dart';
 import 'package:free_authenticator/widget/store_injector.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
@@ -6,19 +7,20 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 class VaultField extends StatefulWidget {
   VaultField({
     Key key,
-    this.controller,
+    @required this.controller,
     this.decoration,
+    this.entry,
   }) : super(key: key);
 
   final TextEditingController controller;
   final InputDecoration decoration;
+  final Entry entry;
 
   @override
   _VaultField createState() => _VaultField();
 }
 
 class _VaultField extends State<VaultField> {
-  TextEditingController input = TextEditingController();
   final GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
   String currentText = "";
 
@@ -31,6 +33,18 @@ class _VaultField extends State<VaultField> {
   _loadVault() async {
     await Future.delayed(Duration.zero);
     var vaults = await StoreInjector.of(context).getEntries(type: EntryType.vault);
+
+    if (this.widget.entry != null && this.widget.entry.id != VaultEntry.rootId) {
+      var currentVault = vaults.firstWhere(
+        (v) => v.id == this.widget.entry.vault,
+        orElse: () => null);
+      if (currentVault != null) {
+        this.setState(() {
+          this.widget.controller.text = currentVault.name;
+        });
+      }
+    }
+
     var vaultNames = vaults.map((v) => v.name);
     vaultSuggestions.addAll(vaultNames);
   }

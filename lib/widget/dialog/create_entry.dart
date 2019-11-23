@@ -38,8 +38,8 @@ class _CreateEntry extends State<CreateEntry> {
             decoration: InputDecoration(hintText: "Secret"),
           ),
           VaultField(
-            decoration: InputDecoration(hintText: "Vault"),
             controller: vaultInput,
+            decoration: InputDecoration(hintText: "Vault"),
           ),
         ],
       ),
