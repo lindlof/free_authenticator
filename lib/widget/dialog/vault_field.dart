@@ -22,11 +22,17 @@ class VaultField extends StatefulWidget {
 
 class _VaultField extends State<VaultField> {
   final GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
+  String currentVault = "";
   String currentText = "";
 
   @override
   void initState() {
     super.initState();
+    this.widget.controller.addListener(() {
+        this.setState(() {
+          currentText = this.widget.controller.text;
+        });
+    });
     this._loadVault();
   }
 
@@ -34,7 +40,7 @@ class _VaultField extends State<VaultField> {
     await Future.delayed(Duration.zero);
     var vaults = await StoreInjector.of(context).getEntries(type: EntryType.vault);
 
-    if (this.widget.entry != null && this.widget.entry.id != VaultEntry.rootId) {
+    if (this.widget.entry != null) {
       var currentVault = vaults.firstWhere(
         (v) => v.id == this.widget.entry.vault,
         orElse: () => null);
@@ -53,15 +59,33 @@ class _VaultField extends State<VaultField> {
 
   @override
   Widget build(BuildContext context) {
+    var vaultDesc = "";
+    if (this.currentText.isEmpty) {
+      vaultDesc = "Storing in Main Vault";
+    } else if (vaultSuggestions.contains(this.currentText)) {
+      vaultDesc = "Storing in an existing vault";
+    } else {
+      vaultDesc = "Forging a new vault";
+    }
+
     return (
-      SimpleAutoCompleteTextField(
-        key: key,
-        decoration: this.widget.decoration,
-        controller: this.widget.controller,
-        suggestions: vaultSuggestions,
-        textChanged: (text) => currentText = text,
-        clearOnSubmit: false,
-        textSubmitted: (text) => currentText = text,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SimpleAutoCompleteTextField(
+            key: key,
+            decoration: this.widget.decoration,
+            controller: this.widget.controller,
+            suggestions: vaultSuggestions,
+            textChanged: (text) => currentVault = text,
+            clearOnSubmit: false,
+            textSubmitted: (text) => currentVault = text,
+          ),
+          Text(
+            vaultDesc,
+            style: TextStyle(fontSize: 13),
+          ),
+        ]
       )
     );
   }
