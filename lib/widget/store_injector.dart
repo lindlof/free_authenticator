@@ -4,7 +4,7 @@ import 'package:free_authenticator/model/interface/entry_type.dart';
 
 class StoreInjector extends InheritedWidget {
   final Future<Entry> Function(int id) getEntry;
-  final Future<List<Entry>> Function(int vault, { int limit, int offset }) getEntries;
+  final Future<List<Entry>> Function({ EntryType type, int vault, int limit, int offset }) getEntries;
   final Future<int> Function(EntryType type, int vault, {String name, String secret, int timestep}) createEntry;
   final Future<void> Function(Entry entry, {int vault, String name, String secret, int timestep}) updateEntry;
   final Future<void> Function(int id) deleteEntry;

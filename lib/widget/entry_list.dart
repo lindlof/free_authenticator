@@ -40,7 +40,7 @@ class _EntryList extends State<EntryList> {
   _loadEntries() async {
     await Future.delayed(Duration.zero);
     if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
-    final entries = await StoreInjector.of(context).getEntries(this.vault.id);
+    final entries = await StoreInjector.of(context).getEntries(vault: this.vault.id);
     setState(() {
       this.entries = entries;
     });
@@ -126,6 +126,7 @@ class _EntryList extends State<EntryList> {
   }
 
   _reorderDone(Key item, Key lastPosition) {
+    if (lastPosition == null) return;
     int draggingIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == item);
     int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
     final draggedItem = entries[draggingIndex];

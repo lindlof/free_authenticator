@@ -10,14 +10,14 @@ class EntryMarshal {
   static final _secret = 'secret';
   static final _timestep = 'timestep';
 
-  static final Map<EntryType, int> _typeId = {
+  static final Map<EntryType, int> typeId = {
     EntryType.vault: DatabaseEntry.vaultTypeId,
     EntryType.totp: DatabaseEntry.totpTypeId,
   };
 
   static Map<String, dynamic> marshal(EntryType type, String data, {int position, int vault, Entry entry}) {
     Map<String, dynamic> map = {
-      DatabaseEntry.columnType : _typeId[type],
+      DatabaseEntry.columnType : typeId[type],
       DatabaseEntry.columnData : data,
       DatabaseEntry.columnPosition : _val("position", position, entry?.position),
       DatabaseEntry.columnVault : _val("vault", vault, entry?.vault),
@@ -46,8 +46,8 @@ class EntryMarshal {
 
   static Future<Entry> unmarshal(Map<String, dynamic> map) async {
     print("Entry from map: " + map.toString());
-    EntryType type = _typeId.keys.firstWhere(
-      (k) => _typeId[k] == map[DatabaseEntry.columnType]);
+    EntryType type = typeId.keys.firstWhere(
+      (k) => typeId[k] == map[DatabaseEntry.columnType]);
 
     int id = map[DatabaseEntry.columnId];
     int position = map[DatabaseEntry.columnPosition];

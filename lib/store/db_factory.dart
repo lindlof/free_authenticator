@@ -22,7 +22,7 @@ class DbFactory {
     final position = DatabaseEntry.columnPosition;
 
     var secretData = {
-      'name': "root",
+      'name': "Main Vault",
     };
     var encryptedData = await KeychainHelper.encryptJson(secretData);
     Map<String, dynamic> rootEntry = {
