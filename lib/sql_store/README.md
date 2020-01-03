@@ -1,11 +1,13 @@
-# Store
+# SQL Store
 
-Architecture of FA is separated to independent and uncoupled components which are orchestrated by `Store`:
+Saves and loads entries in SQLite database. Entries are encrypted in database because they are highly confidential.
+
+`sql_store` implements `Store` interface from `widget`. Dependency diagram:
 
 ```
      DB   Keystore
       ↑    ↑
- UI → Store
+ UI ← Store
   │     ↓
   ┕ → Model
 ```
@@ -13,5 +15,3 @@ Architecture of FA is separated to independent and uncoupled components which ar
 `UI` uses `Store` to, for instance, get entries. `Store` will load them from database, decrypt them, instantiate them and return to `UI`.
 
 `Store`'s job is to instantiate components and call them so that individual components remain isolated and free of interdependencies.
-
-Components without interdependencies are low-complexity, easy to test and have low risk of regression bugs.

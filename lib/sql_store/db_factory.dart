@@ -5,10 +5,9 @@ import 'package:free_authenticator/model/interface/entry.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class DbFactory {
-  // only have a single app-wide reference to the database
-  static Database _database;
+  Database _database;
 
-  static Future<Database> get database async {
+  Future<Database> get database async {
     if (_database != null) return _database;
     // lazily instantiate the db the first time it is accessed
     _database = await DatabaseInit.initDatabase(getRootVault);

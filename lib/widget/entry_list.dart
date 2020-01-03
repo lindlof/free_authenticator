@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
 import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
 import 'dialog/delete_entry.dart';
 import 'dialog/edit_entry.dart';
 import 'select_route.dart';
@@ -39,8 +39,8 @@ class _EntryList extends State<EntryList> {
 
   _loadEntries() async {
     await Future.delayed(Duration.zero);
-    if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
-    final entries = await StoreInjector.of(context).getEntries(vault: this.vault.id);
+    if (this.vault == null) this.vault = await Dependencies.of(context).store.getEntry(this.widget.vaultId);
+    final entries = await Dependencies.of(context).store.getEntries(vault: this.vault.id);
     setState(() {
       this.entries = entries;
     });
@@ -131,7 +131,7 @@ class _EntryList extends State<EntryList> {
     int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
     final draggedItem = entries[draggingIndex];
     final newPositionItem = entries[newPositionIndex];
-    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position)
+    Dependencies.of(context).store.reorderEntry(draggedItem.id, newPositionItem.position)
       .then((x) { this._deselect(); this._loadEntries(); });
   }
 

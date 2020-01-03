@@ -20,7 +20,7 @@ class TOTP implements TimedPasswordEntry {
   String get name => this.entry.name;
   int get position => this.entry.position;
   int get vault => this.entry.vault;
-  setPosition(position, vault) => this.entry.setPosition(position, vault);
+  Function setPosition(position, vault) => this.entry.setPosition;
 
   String genPassword() {
     dotp.TOTP totp = dotp.TOTP(this.secret, this.timeStep);
