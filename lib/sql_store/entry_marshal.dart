@@ -2,8 +2,8 @@ import 'package:free_authenticator/database/database_entry.dart';
 import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/entry/totp.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
 
 class EntryMarshal {
   static final _name = 'name';

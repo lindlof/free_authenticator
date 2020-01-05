@@ -1,6 +1,6 @@
-import '../interface/entry.dart';
+import '../api/entry.dart';
 import 'entry_base.dart';
-import '../interface/entry_type.dart';
+import '../api/entry_type.dart';
 
 class Vault implements Entry, VaultEntry {
   static final rootId = 1;

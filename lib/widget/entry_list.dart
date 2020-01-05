@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/create_entry.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
