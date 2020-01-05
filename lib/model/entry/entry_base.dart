@@ -1,13 +1,12 @@
-class EntryBase {
-  int id;
-  String name;
-  int position;
-  int vault;
+import '../api/entry.dart';
+import '../api/entry_type.dart';
 
-  EntryBase(this.id, this.name, this.position, this.vault);
+class EntryBase implements Entry {
+  final EntryType type;
+  final int id;
+  final String name;
+  final int position;
+  final int vault;
 
-  setPosition(int position, int vault) {
-    this.position = position;
-    this.vault = vault;
-  }
+  EntryBase(this.type, this.id, this.name, this.position, this.vault);
 }

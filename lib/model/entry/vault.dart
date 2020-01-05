@@ -2,21 +2,18 @@ import '../api/entry.dart';
 import 'entry_base.dart';
 import '../api/entry_type.dart';
 
-class Vault implements Entry, VaultEntry {
+class Vault extends EntryBase implements VaultEntry {
   static final rootId = 1;
   
-  EntryType type = EntryType.vault;
   int timeStep;
-  EntryBase entry;
   
-  Vault(int id, String name, int position, int vault) {
-    this.entry = EntryBase(id, name, position, vault);
+  Vault(int id, String name, int position, int vault) :
+  super(EntryType.vault, id, name, position, vault) {
     this.timeStep = (timeStep == null) ? 30 : timeStep;
   }
 
-  int get id => this.entry.id;
-  String get name => this.entry.name;
-  int get position => this.entry.position;
-  int get vault => this.entry.vault;
-  Function setPosition(position, vault) => this.entry.setPosition;
+  int get id => super.id;
+  String get name => super.name;
+  int get position => super.position;
+  int get vault => super.vault;
 }
