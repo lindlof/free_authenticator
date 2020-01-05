@@ -10,11 +10,11 @@ import 'package:mockito/mockito.dart';
 class MockStore extends Mock implements Store {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Show given title', (WidgetTester tester) async {
     final store = MockStore();
 
     when(store.getEntry(1))
-        .thenAnswer((_) async => Vault(1, "name", 0, 0));
+        .thenAnswer((_) async => Vault(1, "", 0, 0));
     when(store.getEntries(vault: 1))
         .thenAnswer((_) async => []);
     
@@ -22,6 +22,20 @@ void main() {
     await tester.pump(Duration(milliseconds:400));
 
     expect(find.text('title'), findsOneWidget);
+  });
+
+  testWidgets('List entry', (WidgetTester tester) async {
+    final store = MockStore();
+
+    when(store.getEntry(1))
+        .thenAnswer((_) async => Vault(1, "", 0, 0));
+    when(store.getEntries(vault: 1))
+        .thenAnswer((_) async => [Vault(2, "mock entry", 1, 1)]);
+    
+    await tester.pumpWidget(buildTestableWidget(EntryList(title: ''), store));
+    await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text('mock entry'), findsOneWidget);
   });
 }
 
