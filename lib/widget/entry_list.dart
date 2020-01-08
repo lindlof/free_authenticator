@@ -190,10 +190,10 @@ class Dialogs {
   Widget createEntryDialog({Key key, Future Function(int id) onCreate}) {
     return CreateEntryDialog(key: key, onCreate: onCreate);
   }
-  Widget editEntryDialog({Key key, Entry entry, Future<dynamic> Function(Entry) onEdit}) {
+  Widget editEntryDialog({Key key, @required Entry entry, Future<dynamic> Function(Entry) onEdit}) {
     return EditEntryDialog(key: key, entry: entry, onEdit: onEdit);
   }
-  Widget deleteEntryDialog({Key key, Entry entry, Future<dynamic> Function(int) onDelete}) {
+  Widget deleteEntryDialog({Key key, @required Entry entry, Future<dynamic> Function(int) onDelete}) {
     return DeleteEntryDialog(key: key, entry: entry, onDelete: onDelete);
   }
 }

@@ -31,12 +31,12 @@ void main() {
     when(store.getEntry(1))
         .thenAnswer((_) async => Vault(1, "", 0, 0));
     when(store.getEntries(vault: 1))
-        .thenAnswer((_) async => [Vault(2, "mock entry", 1, 1)]);
+        .thenAnswer((_) async => [Vault(2, "test entry", 1, 1)]);
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: ''), store));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text('mock entry'), findsOneWidget);
+    expect(find.text('test entry'), findsOneWidget);
   });
 
   testWidgets('Open create entry dialog', (WidgetTester tester) async {
@@ -57,6 +57,58 @@ void main() {
     await tester.pump();
 
     verify(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
+      .called(1);
+  });
+
+   testWidgets('Open edit entry dialog', (WidgetTester tester) async {
+    final store = MockStore();
+    final dialogs = MockDialogs();
+
+    final entry = Vault(2, "test entry", 1, 1);
+
+    when(store.getEntry(1))
+      .thenAnswer((_) async => Vault(1, "", 0, 0));
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => [entry]);
+    when(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
+      .thenAnswer((_) => Container());
+    
+    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pump(Duration(milliseconds:400));
+
+    await tester.longPress(find.text('test entry'));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.edit));
+    await tester.pump();
+
+    verify(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
+      .called(1);
+  });
+
+  testWidgets('Open delete entry dialog', (WidgetTester tester) async {
+    final store = MockStore();
+    final dialogs = MockDialogs();
+
+    final entry = Vault(2, "test entry", 1, 1);
+
+    when(store.getEntry(1))
+      .thenAnswer((_) async => Vault(1, "", 0, 0));
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => [entry]);
+    when(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
+      .thenAnswer((_) => Container());
+    
+    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pump(Duration(milliseconds:400));
+
+    await tester.longPress(find.text('test entry'));
+    await tester.pump();
+
+    await tester.tap(find.byIcon(Icons.delete));
+    await tester.pump();
+
+    verify(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
       .called(1);
   });
 }
