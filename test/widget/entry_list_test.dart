@@ -8,6 +8,7 @@ import 'package:free_authenticator/widget/store.dart';
 import 'package:mockito/mockito.dart';
 
 class MockStore extends Mock implements Store {}
+class MockDialogs extends Mock implements Dialogs {}
 
 void main() {
   testWidgets('Show given title', (WidgetTester tester) async {
@@ -36,6 +37,27 @@ void main() {
     await tester.pump(Duration(milliseconds:400));
 
     expect(find.text('mock entry'), findsOneWidget);
+  });
+
+  testWidgets('Open create entry dialog', (WidgetTester tester) async {
+    final store = MockStore();
+    final dialogs = MockDialogs();
+
+    when(store.getEntry(1))
+      .thenAnswer((_) async => Vault(1, "", 0, 0));
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => []);
+    when(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
+      .thenAnswer((_) => Container());
+    
+    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pump(Duration(milliseconds:400));
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
+
+    verify(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
+      .called(1);
   });
 }
 

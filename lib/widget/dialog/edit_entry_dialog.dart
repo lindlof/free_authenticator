@@ -4,21 +4,21 @@ import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/vault_field.dart';
 
-class EditEntry extends StatefulWidget {
-  EditEntry({
+class EditEntryDialog extends StatefulWidget {
+  EditEntryDialog({
     Key key,
-    this.onEdit,
     @required this.entry,
+    this.onEdit,
   }) : super(key: key);
 
-  final Future Function(Entry entry) onEdit;
   final Entry entry;
+  final Future Function(Entry entry) onEdit;
 
   @override
   _EditEntry createState() => _EditEntry();
 }
 
-class _EditEntry extends State<EditEntry> {
+class _EditEntry extends State<EditEntryDialog> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController vaultInput = TextEditingController();
 
@@ -66,7 +66,7 @@ class _EditEntry extends State<EditEntry> {
             await Dependencies.of(context).store.updateEntry(this.widget.entry, name: nameInput.text, vault: vault);
             Entry entry = await Dependencies.of(context).store.getEntry(this.widget.entry.id);
             Navigator.of(context).pop();
-            await widget.onEdit(entry);
+            if (widget.onEdit != null) await widget.onEdit(entry);
           },
         ),
         new FlatButton(

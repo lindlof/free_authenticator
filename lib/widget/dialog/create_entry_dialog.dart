@@ -5,10 +5,10 @@ import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/vault_field.dart';
 
-class CreateEntry extends StatefulWidget {
-  CreateEntry({
+class CreateEntryDialog extends StatefulWidget {
+  CreateEntryDialog({
     Key key,
-    @required this.onCreate,
+    this.onCreate,
   }) : super(key: key);
 
   final Future Function(int id) onCreate;
@@ -17,7 +17,7 @@ class CreateEntry extends StatefulWidget {
   _CreateEntry createState() => _CreateEntry();
 }
 
-class _CreateEntry extends State<CreateEntry> {
+class _CreateEntry extends State<CreateEntryDialog> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController secretInput = TextEditingController();
   TextEditingController vaultInput = TextEditingController();
@@ -53,7 +53,7 @@ class _CreateEntry extends State<CreateEntry> {
               EntryType.totp, vault, name: nameInput.text, secret: secretInput.text, timestep: 30
             );
             Navigator.of(context).pop();
-            await widget.onCreate(id);
+            if (widget.onCreate != null) await widget.onCreate(id);
           },
         ),
         new FlatButton(
