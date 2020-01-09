@@ -7,6 +7,8 @@ import 'package:free_authenticator/widget/entry_list.dart';
 import 'package:free_authenticator/widget/store.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/mock_dialog.dart';
+
 class MockStore extends Mock implements Store {}
 class MockDialogs extends Mock implements Dialogs {}
 
@@ -86,10 +88,9 @@ void main() {
       .called(1);
   });
 
-  testWidgets('Open delete entry dialog', (WidgetTester tester) async {
+  testWidgets('Entry not displayed after deletion', (WidgetTester tester) async {
     final store = MockStore();
     final dialogs = MockDialogs();
-
     final entry = Vault(2, "test entry", 1, 1);
 
     when(store.getEntry(1))
@@ -97,10 +98,15 @@ void main() {
     when(store.getEntries(vault: 1))
       .thenAnswer((_) async => [entry]);
     when(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
-      .thenAnswer((_) => Container());
+      .thenAnswer((invocation) {
+        final Function(int) onDelete = invocation.namedArguments[Symbol("onDelete")];
+        return MockDialog(onClose: () { onDelete(entry.id); });
+      });
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text('test entry'), findsOneWidget, reason: "Missing entry to delete");
 
     await tester.longPress(find.text('test entry'));
     await tester.pump();
@@ -110,6 +116,13 @@ void main() {
 
     verify(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
       .called(1);
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => []);
+
+    await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
+    await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text('test entry'), findsNothing, reason: "Entry displayed after deletion");
   });
 }
 
