@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/vault_field.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
 
-class EditEntry extends StatefulWidget {
-  EditEntry({
+class EditEntryDialog extends StatefulWidget {
+  EditEntryDialog({
     Key key,
-    this.onEdit,
     @required this.entry,
+    this.onEdit,
   }) : super(key: key);
 
-  final Future Function(Entry entry) onEdit;
   final Entry entry;
+  final Future Function(Entry entry) onEdit;
 
   @override
   _EditEntry createState() => _EditEntry();
 }
 
-class _EditEntry extends State<EditEntry> {
+class _EditEntry extends State<EditEntryDialog> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController vaultInput = TextEditingController();
 
@@ -32,7 +32,7 @@ class _EditEntry extends State<EditEntry> {
   Future<int> _getVault() async {
     if (!this._showVaultInput()) return null;
     else if (vaultInput.text == "") return VaultEntry.rootId;
-    return await StoreInjector.of(context).getOrCreateVault(vaultInput.text);
+    return await Dependencies.of(context).store.getOrCreateVault(vaultInput.text);
   }
 
   @override
@@ -63,10 +63,10 @@ class _EditEntry extends State<EditEntry> {
           child: new Text('Ok'),
           onPressed: () async {
             int vault = await this._getVault();
-            await StoreInjector.of(context).updateEntry(this.widget.entry, name: nameInput.text, vault: vault);
-            Entry entry = await StoreInjector.of(context).getEntry(this.widget.entry.id);
+            await Dependencies.of(context).store.updateEntry(this.widget.entry, name: nameInput.text, vault: vault);
+            Entry entry = await Dependencies.of(context).store.getEntry(this.widget.entry.id);
             Navigator.of(context).pop();
-            await widget.onEdit(entry);
+            if (widget.onEdit != null) await widget.onEdit(entry);
           },
         ),
         new FlatButton(

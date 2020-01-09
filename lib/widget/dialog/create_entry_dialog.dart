@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/vault_field.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
 
-class CreateEntry extends StatefulWidget {
-  CreateEntry({
+class CreateEntryDialog extends StatefulWidget {
+  CreateEntryDialog({
     Key key,
-    @required this.onCreate,
+    this.onCreate,
   }) : super(key: key);
 
   final Future Function(int id) onCreate;
@@ -17,7 +17,7 @@ class CreateEntry extends StatefulWidget {
   _CreateEntry createState() => _CreateEntry();
 }
 
-class _CreateEntry extends State<CreateEntry> {
+class _CreateEntry extends State<CreateEntryDialog> {
   TextEditingController nameInput = TextEditingController();
   TextEditingController secretInput = TextEditingController();
   TextEditingController vaultInput = TextEditingController();
@@ -48,12 +48,12 @@ class _CreateEntry extends State<CreateEntry> {
           child: new Text('Ok'),
           onPressed: () async {
             int vault = vaultInput.text == "" ? VaultEntry.rootId :
-              await StoreInjector.of(context).getOrCreateVault(vaultInput.text);
-            int id = await StoreInjector.of(context).createEntry(
+              await Dependencies.of(context).store.getOrCreateVault(vaultInput.text);
+            int id = await Dependencies.of(context).store.createEntry(
               EntryType.totp, vault, name: nameInput.text, secret: secretInput.text, timestep: 30
             );
             Navigator.of(context).pop();
-            await widget.onCreate(id);
+            if (widget.onCreate != null) await widget.onCreate(id);
           },
         ),
         new FlatButton(

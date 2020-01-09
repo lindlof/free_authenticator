@@ -6,7 +6,6 @@ abstract class Entry {
   String get name;
   int get position;
   int get vault;
-  void setPosition(int position, int vault);
 }
 
 abstract class PasswordEntry implements Entry {

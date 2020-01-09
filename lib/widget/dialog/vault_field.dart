@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class VaultField extends StatefulWidget {
@@ -38,7 +38,7 @@ class _VaultField extends State<VaultField> {
 
   _loadVault() async {
     await Future.delayed(Duration.zero);
-    var vaults = await StoreInjector.of(context).getEntries(type: EntryType.vault);
+    var vaults = await Dependencies.of(context).store.getEntries(type: EntryType.vault);
 
     if (this.widget.entry != null) {
       var currentVault = vaults.firstWhere(

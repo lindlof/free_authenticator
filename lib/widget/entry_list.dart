@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:free_authenticator/entry_widget/entry_widget_factory.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/widget/dialog/create_entry.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
-import 'dialog/delete_entry.dart';
-import 'dialog/edit_entry.dart';
+import 'dialog/create_entry_dialog.dart';
+import 'dialog/delete_entry_dialog.dart';
+import 'dialog/edit_entry_dialog.dart';
 import 'select_route.dart';
 
 class EntryList extends StatefulWidget {
   final String title;
   final int vaultId;
+  final Dialogs dialogs;
 
   EntryList({
     Key key,
     @required this.title,
     this.vaultId: VaultEntry.rootId,
+    this.dialogs: const Dialogs(),
   }) : super(key: key);
 
   @override
@@ -39,8 +41,8 @@ class _EntryList extends State<EntryList> {
 
   _loadEntries() async {
     await Future.delayed(Duration.zero);
-    if (this.vault == null) this.vault = await StoreInjector.of(context).getEntry(this.widget.vaultId);
-    final entries = await StoreInjector.of(context).getEntries(vault: this.vault.id);
+    if (this.vault == null) this.vault = await Dependencies.of(context).store.getEntry(this.widget.vaultId);
+    final entries = await Dependencies.of(context).store.getEntries(vault: this.vault.id);
     setState(() {
       this.entries = entries;
     });
@@ -50,7 +52,7 @@ class _EntryList extends State<EntryList> {
     return showDialog(
       context: context,
       builder: (context) {
-        return CreateEntry(
+        return this.widget.dialogs.createEntryDialog(
           onCreate: (int id) async {
             _loadEntries();
           },
@@ -62,7 +64,7 @@ class _EntryList extends State<EntryList> {
     return showDialog(
       context: context,
       builder: (context) {
-        return EditEntry(
+        return this.widget.dialogs.editEntryDialog(
           entry: selected,
           onEdit: (Entry entry) async {
             this._deselect();
@@ -78,7 +80,7 @@ class _EntryList extends State<EntryList> {
     return showDialog(
       context: context,
       builder: (context) {
-        return DeleteEntry(
+        return this.widget.dialogs.deleteEntryDialog(
           entry: selected,
           onDelete: (int id) async {
             this._deselect();
@@ -131,7 +133,7 @@ class _EntryList extends State<EntryList> {
     int newPositionIndex = entries.indexWhere((Entry e) => ValueKey(e.id) == lastPosition);
     final draggedItem = entries[draggingIndex];
     final newPositionItem = entries[newPositionIndex];
-    StoreInjector.of(context).reorderEntry(draggedItem.id, newPositionItem.position)
+    Dependencies.of(context).store.reorderEntry(draggedItem.id, newPositionItem.position)
       .then((x) { this._deselect(); this._loadEntries(); });
   }
 
@@ -179,5 +181,19 @@ class _EntryList extends State<EntryList> {
         child: Icon(Icons.add),
       ),
     );
+  }
+}
+
+class Dialogs {
+  const Dialogs();
+
+  Widget createEntryDialog({Key key, Future Function(int id) onCreate}) {
+    return CreateEntryDialog(key: key, onCreate: onCreate);
+  }
+  Widget editEntryDialog({Key key, Entry entry, Future<dynamic> Function(Entry) onEdit}) {
+    return EditEntryDialog(key: key, entry: entry, onEdit: onEdit);
+  }
+  Widget deleteEntryDialog({Key key, Entry entry, Future<dynamic> Function(int) onDelete}) {
+    return DeleteEntryDialog(key: key, entry: entry, onDelete: onDelete);
   }
 }

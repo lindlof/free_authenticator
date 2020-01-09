@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/store/entry_store.dart';
-import 'package:free_authenticator/store/vault_store.dart';
+import 'package:free_authenticator/sql_store/sql_store.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/entry_list.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
 
 void main() {
-  var injector = StoreInjector(
+  var injector = Dependencies(
     child : FreeAuthenticatorApp(),
-    getEntry: EntryStore.get,
-    getEntries: EntryStore.getEntries,
-    createEntry: EntryStore.create,
-    updateEntry: EntryStore.update,
-    deleteEntry: EntryStore.delete,
-    reorderEntry: EntryStore.reorder,
-    getOrCreateVault: VaultStore.getOrCreate,
+    store : SqlStore(),
   );
 	runApp(injector);
 }

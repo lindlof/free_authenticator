@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
+import 'package:free_authenticator/model/api/entry.dart';
 
 import 'element/timer.dart';
 

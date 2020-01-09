@@ -1,26 +1,22 @@
-import '../interface/entry.dart';
+import '../api/entry.dart';
 import 'entry_base.dart';
 import 'package:dotp/dotp.dart' as dotp;
 
-import '../interface/entry_type.dart';
+import '../api/entry_type.dart';
 
 /// Time-Based One-Time Password
 /// https://tools.ietf.org/html/rfc6238
-class TOTP implements TimedPasswordEntry {
-  EntryType type = EntryType.totp;
+class TOTP extends EntryBase implements TimedPasswordEntry {
   int timeStep;
-  EntryBase entry;
   String secret;
   
-  TOTP(int id, String name, this.secret, int position, int vault, this.timeStep) {
-    this.entry = EntryBase(id, name, position, vault);
-  }
+  TOTP(int id, String name, this.secret, int position, int vault, this.timeStep) :
+  super(EntryType.totp, id, name, position, vault);
 
-  int get id => this.entry.id;
-  String get name => this.entry.name;
-  int get position => this.entry.position;
-  int get vault => this.entry.vault;
-  setPosition(position, vault) => this.entry.setPosition(position, vault);
+  int get id => super.id;
+  String get name => super.name;
+  int get position => super.position;
+  int get vault => super.vault;
 
   String genPassword() {
     dotp.TOTP totp = dotp.TOTP(this.secret, this.timeStep);

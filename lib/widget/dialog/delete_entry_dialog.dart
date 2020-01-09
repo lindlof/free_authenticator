@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:free_authenticator/model/interface/entry.dart';
-import 'package:free_authenticator/model/interface/entry_type.dart';
-import 'package:free_authenticator/widget/store_injector.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
+import 'package:free_authenticator/widget/dependencies.dart';
 
-class DeleteEntry extends StatefulWidget {
-  DeleteEntry({
+class DeleteEntryDialog extends StatefulWidget {
+  DeleteEntryDialog({
     Key key,
     @required this.entry,
     this.onDelete,
@@ -17,7 +17,7 @@ class DeleteEntry extends StatefulWidget {
   _DeleteEntry createState() => _DeleteEntry();
 }
 
-class _DeleteEntry extends State<DeleteEntry> {
+class _DeleteEntry extends State<DeleteEntryDialog> {
   Widget _buildConfirm() {
     return AlertDialog(
       title: Text('Deletion'),
@@ -28,9 +28,9 @@ class _DeleteEntry extends State<DeleteEntry> {
         new FlatButton(
           child: new Text('Delete'),
           onPressed: () async {
-            await StoreInjector.of(context).deleteEntry(this.widget.entry.id);
+            await Dependencies.of(context).store.deleteEntry(this.widget.entry.id);
             Navigator.of(context).pop();
-            this.widget.onDelete(this.widget.entry.id);
+            if (widget.onDelete != null) this.widget.onDelete(this.widget.entry.id);
           },
         ),
         new FlatButton(
