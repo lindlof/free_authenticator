@@ -112,7 +112,7 @@ class _EntryList extends State<EntryList> {
   }
 
   _deselect() {
-    Navigator.of(context).popUntil((route) {print(route); return route is! SelectRoute;});
+    Navigator.of(context).popUntil((route) { return route is! SelectRoute; });
   }
 
   bool _reorderCallback(Key item, Key newPosition) {
