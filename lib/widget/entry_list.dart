@@ -66,7 +66,7 @@ class _EntryList extends State<EntryList> {
       builder: (context) {
         return this.widget.dialogs.editEntryDialog(
           entry: selected,
-          onEdit: (Entry entry) async {
+          onEdit: (int id) async {
             this._deselect();
             setState(() {
               this._loadEntries();
@@ -187,10 +187,10 @@ class _EntryList extends State<EntryList> {
 class Dialogs {
   const Dialogs();
 
-  Widget createEntryDialog({Key key, Future Function(int id) onCreate}) {
+  Widget createEntryDialog({Key key, Future Function(int) onCreate}) {
     return CreateEntryDialog(key: key, onCreate: onCreate);
   }
-  Widget editEntryDialog({Key key, @required Entry entry, Future<dynamic> Function(Entry) onEdit}) {
+  Widget editEntryDialog({Key key, @required Entry entry, Future<dynamic> Function(int) onEdit}) {
     return EditEntryDialog(key: key, entry: entry, onEdit: onEdit);
   }
   Widget deleteEntryDialog({Key key, @required Entry entry, Future<dynamic> Function(int) onDelete}) {

@@ -12,7 +12,7 @@ class EditEntryDialog extends StatefulWidget {
   }) : super(key: key);
 
   final Entry entry;
-  final Future Function(Entry entry) onEdit;
+  final Future Function(int id) onEdit;
 
   @override
   _EditEntry createState() => _EditEntry();
@@ -64,9 +64,8 @@ class _EditEntry extends State<EditEntryDialog> {
           onPressed: () async {
             int vault = await this._getVault();
             await Dependencies.of(context).store.updateEntry(this.widget.entry, name: nameInput.text, vault: vault);
-            Entry entry = await Dependencies.of(context).store.getEntry(this.widget.entry.id);
             Navigator.of(context).pop();
-            if (widget.onEdit != null) await widget.onEdit(entry);
+            if (widget.onEdit != null) await widget.onEdit(this.widget.entry.id);
           },
         ),
         new FlatButton(
