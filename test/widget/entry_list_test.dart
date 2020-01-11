@@ -41,51 +41,78 @@ void main() {
     expect(find.text('test entry'), findsOneWidget);
   });
 
-  testWidgets('Open create entry dialog', (WidgetTester tester) async {
+  testWidgets('Created entry is displayed', (WidgetTester tester) async {
     final store = MockStore();
     final dialogs = MockDialogs();
+    final entry = Vault(2, "test entry", 1, 1);
 
     when(store.getEntry(1))
       .thenAnswer((_) async => Vault(1, "", 0, 0));
     when(store.getEntries(vault: 1))
       .thenAnswer((_) async => []);
     when(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
-      .thenAnswer((_) => Container());
+      .thenAnswer((invocation) {
+        final Function(int) onCreate = invocation.namedArguments[Symbol("onCreate")];
+        return MockDialog(onClose: () { onCreate(entry.id); });
+      });
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text(entry.name), findsNothing, reason: "Entry found before creation");
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     verify(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
       .called(1);
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => [entry]);
+
+    await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
+    await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text(entry.name), findsOneWidget, reason: "Entry not found after creation");
   });
 
-   testWidgets('Open edit entry dialog', (WidgetTester tester) async {
+   testWidgets('Edit entry is updated', (WidgetTester tester) async {
     final store = MockStore();
     final dialogs = MockDialogs();
-
-    final entry = Vault(2, "test entry", 1, 1);
+    final entryStart = Vault(2, "before test entry", 1, 1);
+    final entryEnd = Vault(2, "after test entry", 1, 1);
 
     when(store.getEntry(1))
       .thenAnswer((_) async => Vault(1, "", 0, 0));
     when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => [entry]);
-    when(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
-      .thenAnswer((_) => Container());
+      .thenAnswer((_) async => [entryStart]);
+    when(dialogs.editEntryDialog(key: anyNamed("key"), entry: entryStart, onEdit: anyNamed("onEdit")))
+      .thenAnswer((invocation) {
+        final Function(int) onCreate = invocation.namedArguments[Symbol("onEdit")];
+        return MockDialog(onClose: () { onCreate(entryStart.id); });
+      });
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
 
-    await tester.longPress(find.text('test entry'));
+    expect(find.text(entryStart.name), findsOneWidget, reason: "Start entry missing before edit");
+    expect(find.text(entryEnd.name), findsNothing, reason: "End entry present before edit");
+
+    await tester.longPress(find.text(entryStart.name));
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.edit));
     await tester.pump();
 
-    verify(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
+    verify(dialogs.editEntryDialog(key: anyNamed("key"), entry: entryStart, onEdit: anyNamed("onEdit")))
       .called(1);
+    when(store.getEntries(vault: 1))
+      .thenAnswer((_) async => [entryEnd]);
+
+    await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
+    await tester.pump(Duration(milliseconds:400));
+
+    expect(find.text(entryStart.name), findsNothing, reason: "Start entry present after edit");
+    expect(find.text(entryEnd.name), findsOneWidget, reason: "End entry missing after edit");
   });
 
   testWidgets('Entry not displayed after deletion', (WidgetTester tester) async {
@@ -106,9 +133,9 @@ void main() {
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text('test entry'), findsOneWidget, reason: "Missing entry to delete");
+    expect(find.text(entry.name), findsOneWidget, reason: "Missing entry to delete");
 
-    await tester.longPress(find.text('test entry'));
+    await tester.longPress(find.text(entry.name));
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.delete));
