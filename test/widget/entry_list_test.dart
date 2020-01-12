@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:free_authenticator/model/api/entry.dart';
+import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 
@@ -8,18 +10,13 @@ import 'package:free_authenticator/widget/store.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/mock_dialog.dart';
+import '../mock/mock_store.dart';
 
-class MockStore extends Mock implements Store {}
 class MockDialogs extends Mock implements Dialogs {}
 
 void main() {
   testWidgets('Show given title', (WidgetTester tester) async {
     final store = MockStore();
-
-    when(store.getEntry(1))
-        .thenAnswer((_) async => Vault(1, "", 0, 0));
-    when(store.getEntries(vault: 1))
-        .thenAnswer((_) async => []);
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: 'title'), store));
     await tester.pump(Duration(milliseconds:400));
@@ -28,102 +25,90 @@ void main() {
   });
 
   testWidgets('List entry', (WidgetTester tester) async {
-    final store = MockStore();
-
-    when(store.getEntry(1))
-        .thenAnswer((_) async => Vault(1, "", 0, 0));
-    when(store.getEntries(vault: 1))
-        .thenAnswer((_) async => [Vault(2, "test entry", 1, 1)]);
+    final store = MockStore(provision: 1);
+    final Entry entry = await store.getEntry(2);
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: ''), store));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text('test entry'), findsOneWidget);
+    expect(find.text(entry.name), findsOneWidget);
   });
 
   testWidgets('Created entry is displayed', (WidgetTester tester) async {
     final store = MockStore();
     final dialogs = MockDialogs();
-    final entry = Vault(2, "test entry", 1, 1);
+    final String createdEntryName = "created entry";
 
-    when(store.getEntry(1))
-      .thenAnswer((_) async => Vault(1, "", 0, 0));
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => []);
     when(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
       .thenAnswer((invocation) {
         final Function(int) onCreate = invocation.namedArguments[Symbol("onCreate")];
-        return MockDialog(onClose: () { onCreate(entry.id); });
+        return MockDialog(onClose: () async {
+          print("hello");
+          int id = await store.createEntry(EntryType.vault, Vault.rootId, name: createdEntryName);
+          onCreate(id);
+        });
       });
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text(entry.name), findsNothing, reason: "Entry found before creation");
+    expect(find.text(createdEntryName), findsNothing, reason: "Entry found before creation");
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     verify(dialogs.createEntryDialog(key: anyNamed("key"), onCreate: anyNamed("onCreate")))
       .called(1);
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => [entry]);
 
     await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text(entry.name), findsOneWidget, reason: "Entry not found after creation");
+    expect(find.text(createdEntryName), findsOneWidget, reason: "Entry not found after creation");
   });
 
    testWidgets('Edit entry is updated', (WidgetTester tester) async {
-    final store = MockStore();
+    final store = MockStore(provision: 1);
     final dialogs = MockDialogs();
-    final entryStart = Vault(2, "before test entry", 1, 1);
-    final entryEnd = Vault(2, "after test entry", 1, 1);
+    final Entry entry = await store.getEntry(2);
+    final String startName = entry.name;
+    final String afterName = "after test entry";
 
-    when(store.getEntry(1))
-      .thenAnswer((_) async => Vault(1, "", 0, 0));
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => [entryStart]);
-    when(dialogs.editEntryDialog(key: anyNamed("key"), entry: entryStart, onEdit: anyNamed("onEdit")))
+    when(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
       .thenAnswer((invocation) {
         final Function(int) onCreate = invocation.namedArguments[Symbol("onEdit")];
-        return MockDialog(onClose: () { onCreate(entryStart.id); });
+        return MockDialog(onClose: () async {
+          await store.updateEntry(entry, name: afterName);
+          onCreate(entry.id);
+        });
       });
     
     await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text(entryStart.name), findsOneWidget, reason: "Start entry missing before edit");
-    expect(find.text(entryEnd.name), findsNothing, reason: "End entry present before edit");
+    expect(find.text(startName), findsOneWidget, reason: "Start entry missing before edit");
+    expect(find.text(afterName), findsNothing, reason: "End entry present before edit");
 
-    await tester.longPress(find.text(entryStart.name));
+    await tester.longPress(find.text(startName));
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.edit));
     await tester.pump();
 
-    verify(dialogs.editEntryDialog(key: anyNamed("key"), entry: entryStart, onEdit: anyNamed("onEdit")))
+    verify(dialogs.editEntryDialog(key: anyNamed("key"), entry: entry, onEdit: anyNamed("onEdit")))
       .called(1);
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => [entryEnd]);
 
     await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
     await tester.pump(Duration(milliseconds:400));
 
-    expect(find.text(entryStart.name), findsNothing, reason: "Start entry present after edit");
-    expect(find.text(entryEnd.name), findsOneWidget, reason: "End entry missing after edit");
+    expect(find.text(startName), findsNothing, reason: "Start entry present after edit");
+    expect(find.text(afterName), findsOneWidget, reason: "End entry missing after edit");
   });
 
   testWidgets('Entry not displayed after deletion', (WidgetTester tester) async {
-    final store = MockStore();
+    final store = MockStore(provision: 1);
     final dialogs = MockDialogs();
-    final entry = Vault(2, "test entry", 1, 1);
+    final Entry entry = await store.getEntry(2);
 
-    when(store.getEntry(1))
-      .thenAnswer((_) async => Vault(1, "", 0, 0));
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => [entry]);
     when(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
       .thenAnswer((invocation) {
         final Function(int) onDelete = invocation.namedArguments[Symbol("onDelete")];
@@ -143,8 +128,6 @@ void main() {
 
     verify(dialogs.deleteEntryDialog(key: anyNamed("key"), entry: entry, onDelete: anyNamed("onDelete")))
       .called(1);
-    when(store.getEntries(vault: 1))
-      .thenAnswer((_) async => []);
 
     await tester.tap(find.text(MockDialog.CLOSE_DIALOG_TEXT));
     await tester.pump(Duration(milliseconds:400));
