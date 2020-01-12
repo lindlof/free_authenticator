@@ -71,9 +71,10 @@ class MockStore implements Store {
 
     for (Entry e in db.values) {
       if (e.position >= fromPosition && e.position <= toPosition) {
-        db[e.id] = _dataToEntry(e.type, e.id, position: add ? e.position+1 : e.position-1);
+        db[e.id] = _dataToEntry(e.type, e.id, entry: e, position: add ? e.position+1 : e.position-1);
       }
     }
+    db[entry.id] = _dataToEntry(entry.type, entry.id, entry: entry, position: position);
   }
 
   @override
