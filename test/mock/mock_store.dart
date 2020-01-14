@@ -28,7 +28,7 @@ class MockStore implements Store {
     var entryList = entryIter.toList();
     entryList.sort((a, b) => a.position - b.position);
 
-    if (limit == null) limit = db.length-1 - offset;
+    if (limit == null) limit = entryList.length - offset;
     else if (offset + limit > entryList.length) limit = entryList.length - offset;
     return entryList.getRange(offset, offset + limit).toList();
   }
