@@ -164,12 +164,31 @@ void main() {
     expect(tester.getCenter(finder1), offsetMoreOrLessEquals(offset2), reason: "Entry not in next position after dragging");
     expect(entryAfter1.position, equals(entry2.position), reason: "Entry not in saved to next position after dragging");
   });
+
+  testWidgets('Vault opening on tap', (WidgetTester tester) async {
+    final store = MockStore(provision: 1);
+    final dialogs = MockDialogs();
+    final Entry vault = await store.getEntry(2);
+    final Entry entry = await store.getEntry(
+      await store.createEntry(EntryType.vault, vault.id, name: "Vaulted entry")
+    );
+    
+    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    expect(find.text(entry.name), findsNothing, reason: "Vaulted entry visible in main vault");
+
+    await tester.tap(find.text(vault.name));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    expect(find.text(entry.name), findsOneWidget, reason: "Vaulted entry not visible in test vault");
+  });
 }
 
 Widget buildTestableWidget(Widget child, Store store) {
-  var injector = Dependencies(
-    child : child,
+  return Dependencies(
+    child : MaterialApp(home: child),
     store: store,
   );
-  return MaterialApp(home: injector);
 }
