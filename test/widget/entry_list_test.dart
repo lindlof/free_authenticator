@@ -46,7 +46,6 @@ void main() {
       .thenAnswer((invocation) {
         final Function(int) onCreate = invocation.namedArguments[Symbol("onCreate")];
         return MockDialog(onClose: () async {
-          print("hello");
           int id = await store.createEntry(EntryType.vault, Vault.rootId, name: createdEntryName);
           onCreate(id);
         });
@@ -165,7 +164,7 @@ void main() {
     expect(entryAfter1.position, equals(entry2.position), reason: "Entry not in saved to next position after dragging");
   });
 
-  testWidgets('Vault opening on tap', (WidgetTester tester) async {
+  testWidgets('Vault opening and closing', (WidgetTester tester) async {
     final store = MockStore(provision: 1);
     final dialogs = MockDialogs();
     final Entry vault = await store.getEntry(2);
@@ -183,6 +182,13 @@ void main() {
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(entry.name), findsOneWidget, reason: "Vaulted entry not visible in test vault");
+
+    await tester.pageBack();
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS*2));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS*2));
+
+    expect(find.text(entry.name), findsNothing, reason: "Vaulted entry visible in main vault");
+    expect(find.text(vault.name), findsOneWidget, reason: "Test vault not visible in main vault");
   });
 }
 
