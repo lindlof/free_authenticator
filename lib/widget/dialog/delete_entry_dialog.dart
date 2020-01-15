@@ -3,7 +3,7 @@ import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 
-class DeleteEntryDialog extends StatefulWidget {
+class DeleteEntryDialog extends StatelessWidget {
   DeleteEntryDialog({
     Key key,
     @required this.entry,
@@ -13,24 +13,19 @@ class DeleteEntryDialog extends StatefulWidget {
   final Entry entry;
   final Future Function(int id) onDelete;
 
-  @override
-  _DeleteEntry createState() => _DeleteEntry();
-}
-
-class _DeleteEntry extends State<DeleteEntryDialog> {
-  Widget _buildConfirm() {
+  Widget _buildConfirm(BuildContext context) {
     return AlertDialog(
       title: Text('Deletion'),
       content: Text(
         "You may lose access to your account! Make sure you disable 2FA before deleting your secret.\n\n" +
-        "Are you sure you want to delete " + this.widget.entry.name + "?"),
+        "Are you sure you want to delete " + this.entry.name + "?"),
       actions: <Widget>[
         new FlatButton(
           child: new Text('Delete'),
           onPressed: () async {
-            await Dependencies.of(context).store.deleteEntry(this.widget.entry.id);
+            await Dependencies.of(context).store.deleteEntry(this.entry.id);
             Navigator.of(context).pop();
-            if (widget.onDelete != null) this.widget.onDelete(this.widget.entry.id);
+            if (this.onDelete != null) this.onDelete(this.entry.id);
           },
         ),
         new FlatButton(
@@ -43,7 +38,7 @@ class _DeleteEntry extends State<DeleteEntryDialog> {
     );
   }
 
-  Widget _buildVault() {
+  Widget _buildVault(BuildContext context) {
     return AlertDialog(
       title: Text('Deletion'),
       content: Text("Empty this vault to delete it."),
@@ -60,9 +55,9 @@ class _DeleteEntry extends State<DeleteEntryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if (this.widget.entry.type == EntryType.vault) {
-      return _buildVault();
+    if (this.entry.type == EntryType.vault) {
+      return _buildVault(context);
     }
-    return _buildConfirm();
+    return _buildConfirm(context);
   }
 }

@@ -1,5 +1,5 @@
 name: Unit test and lint
-on: [push, pull_request]
+on: [pull_request]
 jobs:
   lint-and-test:
     name: Test on ${{ matrix.os }}
