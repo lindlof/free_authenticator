@@ -30,10 +30,12 @@ class _CreateEntry extends State<CreateEntryDialog> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TextField(
+            key: ValueKey("nameInput"),
             controller: nameInput,
             decoration: InputDecoration(hintText: "Name"),
           ),
           TextField(
+            key: ValueKey("secretInput"),
             controller: secretInput,
             decoration: InputDecoration(hintText: "Secret"),
           ),

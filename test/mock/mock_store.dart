@@ -18,7 +18,10 @@ class MockStore implements Store {
   }
 
   @override
-  Future<Entry> getEntry(int id) async => db[id];
+  Future<Entry> getEntry(int id) async {
+    if (db.containsKey(id)) return db[id];
+    throw StateError("No entries with id " + id.toString());
+  }
 
   @override
   Future<List<Entry>> getEntries({ EntryType type, int vault, int limit, int offset: 0 }) async {
