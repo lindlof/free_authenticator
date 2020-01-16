@@ -40,6 +40,7 @@ class _CreateEntry extends State<CreateEntryDialog> {
             decoration: InputDecoration(hintText: "Secret"),
           ),
           VaultField(
+            key: ValueKey("vaultInput"),
             controller: vaultInput,
             decoration: InputDecoration(hintText: "Vault"),
           ),

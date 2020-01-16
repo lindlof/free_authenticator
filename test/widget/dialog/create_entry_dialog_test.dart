@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_authenticator/model/api/entry.dart';
-import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/model/entry/totp.dart';
+import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/widget/dependencies.dart';
 import 'package:free_authenticator/widget/dialog/create_entry_dialog.dart';
 
@@ -49,9 +49,41 @@ void main() {
 
     final totp = newEntry as TOTP;
     expect(totp.name, equals(name));
-    expect(totp.type, equals(EntryType.totp));
     expect(totp.vault, equals(VaultEntry.rootId));
     expect(totp.secret, equals(secret));
+  });
+
+  testWidgets('Create entry in vault', (WidgetTester tester) async {
+    final store = MockStore();
+    final name = "Hello entry";
+    final secret = "123456";
+    final vaultName = "Hello vault";
+
+    await tester.pumpWidget(buildTestableWidget(CreateEntryDialog(), store));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    var initialEntry;
+    try { initialEntry = await store.getEntry(2); }
+    catch (e) { initialEntry = e; }
+    expect(initialEntry, isStateError, reason: "Entry id 2 already exists");
+
+    await tester.enterText(find.byKey(ValueKey("nameInput")), name);
+    await tester.enterText(find.byKey(ValueKey("secretInput")), secret);
+    await tester.enterText(find.byKey(ValueKey("vaultInput")), vaultName);
+    await tester.tap(find.text("Ok"));
+
+    final newVault = await store.getEntry(2);
+    expect(newVault, isNotNull, reason: "Created vault not in store");
+    expect(newVault, isA<Vault>());
+    expect(newVault.name, equals(vaultName));
+
+    final newEntry = await store.getEntry(3);
+    expect(newEntry, isNotNull, reason: "Created entry not in store");
+    expect(newEntry, isA<TOTP>());
+
+    final totp = newEntry as TOTP;
+    expect(totp.name, equals(name));
+    expect(totp.vault, equals(newVault.id));
   });
 }
 

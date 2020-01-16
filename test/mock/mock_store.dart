@@ -82,7 +82,10 @@ class MockStore implements Store {
 
   @override
   Future<int> getOrCreateVault(String name) async {
-    Entry gotEntry = db.values.singleWhere((e) => e.type == EntryType.vault && e.name == name);
+    Entry gotEntry = db.values.singleWhere(
+      (e) => e.type == EntryType.vault && e.name == name,
+      orElse: () => null
+    );
     if (gotEntry != null) return gotEntry.id;
     return createEntry(EntryType.vault, Vault.rootId, name: name);
   }
