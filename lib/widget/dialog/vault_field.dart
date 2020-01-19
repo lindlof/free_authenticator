@@ -22,7 +22,6 @@ class VaultField extends StatefulWidget {
 
 class _VaultField extends State<VaultField> {
   final GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
-  String currentVault = "";
   String currentText = "";
 
   @override
@@ -77,9 +76,7 @@ class _VaultField extends State<VaultField> {
             decoration: this.widget.decoration,
             controller: this.widget.controller,
             suggestions: vaultSuggestions,
-            textChanged: (text) => currentVault = text,
             clearOnSubmit: false,
-            textSubmitted: (text) => currentVault = text,
           ),
           Text(
             vaultDesc,
