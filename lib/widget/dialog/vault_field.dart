@@ -23,6 +23,7 @@ class VaultField extends StatefulWidget {
 class _VaultField extends State<VaultField> {
   final GlobalKey<AutoCompleteTextFieldState<String>> key = new GlobalKey();
   String currentText = "";
+  String mainVaultName;
 
   @override
   void initState() {
@@ -37,7 +38,9 @@ class _VaultField extends State<VaultField> {
 
   _loadVault() async {
     await Future.delayed(Duration.zero);
-    var vaults = await Dependencies.of(context).store.getEntries(type: EntryType.vault);
+    final allVaults = await Dependencies.of(context).store.getEntries(type: EntryType.vault);
+    mainVaultName = allVaults.firstWhere((v) => v.id == VaultEntry.rootId).name;
+    final vaults = allVaults.where((v) => v.id != VaultEntry.rootId);
 
     if (this.widget.entry != null) {
       var currentVault = vaults.firstWhere(
@@ -59,7 +62,7 @@ class _VaultField extends State<VaultField> {
   @override
   Widget build(BuildContext context) {
     var vaultDesc = "";
-    if (this.currentText.isEmpty) {
+    if (this.currentText.isEmpty || this.currentText == mainVaultName) {
       vaultDesc = "Storing in Main Vault";
     } else if (vaultSuggestions.contains(this.currentText)) {
       vaultDesc = "Storing in an existing vault";
