@@ -17,12 +17,15 @@ class MainTestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final app = MaterialApp(
+      home: Scaffold(body: this.child)
+    );
     if (this.store != null) {
       return Dependencies(
-        child : MaterialApp(home: this.child),
+        child : app,
         store: store,
       );
     }
-    return MaterialApp(home: this.child);
+    return app;
   }
 }
