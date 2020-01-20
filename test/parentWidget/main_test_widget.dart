@@ -18,7 +18,7 @@ class MainTestWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = MaterialApp(
-      home: Scaffold(body: this.child)
+      home: Material(child: this.child)
     );
     if (this.store != null) {
       return Dependencies(
