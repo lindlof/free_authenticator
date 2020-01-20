@@ -12,24 +12,48 @@ import '../../mock/mock_store.dart';
 import '../../parentWidget/main_test_widget.dart';
 
 const int PUMP_DURATION_MS = 10;
+const Key KEY = ValueKey("vaultInput");
+const String HELP_TEXT_VAULT_MAIN = 'Storing in Main Vault';
+const String HELP_TEXT_VAULT_NEW = 'Forging a new vault';
+const String HELP_TEXT_VAULT_EXIST = 'Storing in an existing vault';
 
 class MockDialogs extends Mock implements Dialogs {}
 
 void main() {
-  testWidgets('Show title', (WidgetTester tester) async {
+  testWidgets('Help texts', (WidgetTester tester) async {
     final store = MockStore();
     TextEditingController vaultInput = TextEditingController();
+    final vaultField = VaultField(key: KEY, controller: vaultInput);
+    final existing1 = "Yellow submarine";
 
-    await tester.pumpWidget(MainTestWidget(VaultField(controller: vaultInput), store: store));
+    await store.createEntry(EntryType.vault, VaultEntry.rootId, name: existing1);
+
+    await tester.pumpWidget(MainTestWidget(vaultField, store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
-    expect(find.text('Storing in Main Vault'), findsOneWidget);
+    expect(find.text(HELP_TEXT_VAULT_MAIN),  findsOneWidget);
+    expect(find.text(HELP_TEXT_VAULT_NEW),   findsNothing);
+    expect(find.text(HELP_TEXT_VAULT_EXIST), findsNothing);
+
+    await tester.enterText(find.byKey(KEY), "x");
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    expect(find.text(HELP_TEXT_VAULT_MAIN),  findsNothing);
+    expect(find.text(HELP_TEXT_VAULT_NEW),   findsOneWidget);
+    expect(find.text(HELP_TEXT_VAULT_EXIST), findsNothing);
+
+    await tester.enterText(find.byKey(KEY), existing1);
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+    
+    expect(find.text(HELP_TEXT_VAULT_MAIN),  findsNothing);
+    expect(find.text(HELP_TEXT_VAULT_NEW),   findsNothing);
+    expect(find.text(HELP_TEXT_VAULT_EXIST), findsOneWidget);
   });
 
   testWidgets('Autocomplete matching vaults', (WidgetTester tester) async {
     final store = MockStore();
     TextEditingController vaultInput = TextEditingController();
-    final vaultField = VaultField(key: ValueKey("vaultInput"), controller: vaultInput);
+    final vaultField = VaultField(key: KEY, controller: vaultInput);
     final match1 = "Yellow submarine";
     final match2 = "Yell what up";
     final noMatch = "Hot baste";
@@ -41,7 +65,7 @@ void main() {
     await tester.pumpWidget(MainTestWidget(vaultField, store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
-    await tester.enterText(find.byKey(ValueKey("vaultInput")), "Yel");
+    await tester.enterText(find.byKey(KEY), "Yel");
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(match1), findsOneWidget);
@@ -52,7 +76,7 @@ void main() {
   testWidgets('Don\'t autocomplete non-vaults', (WidgetTester tester) async {
     final store = MockStore();
     TextEditingController vaultInput = TextEditingController();
-    final vaultField = VaultField(key: ValueKey("vaultInput"), controller: vaultInput);
+    final vaultField = VaultField(key: KEY, controller: vaultInput);
     final match1 = "Yellow submarine";
     final secret = "123456";
 
@@ -61,7 +85,7 @@ void main() {
     await tester.pumpWidget(MainTestWidget(vaultField, store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
-    await tester.enterText(find.byKey(ValueKey("vaultInput")), "Yel");
+    await tester.enterText(find.byKey(KEY), "Yel");
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(match1), findsNothing);
