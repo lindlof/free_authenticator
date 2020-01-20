@@ -17,10 +17,10 @@ class MockDialogs extends Mock implements Dialogs {}
 void main() {
   testWidgets('Delete entry', (WidgetTester tester) async {
     final store = MockStore();
-    final vaultName = "Redundant vault";
+    final name = "Redundant vault";
     final secret = "123456";
 
-    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: vaultName, secret: secret, timestep: 30);
+    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: name, secret: secret, timestep: 30);
     final Entry entry = await store.getEntry(2);
 
     expect(entry, isNotNull, reason: "Entry id 2 missing before deletion");
@@ -39,10 +39,10 @@ void main() {
 
   testWidgets('Cancel delete', (WidgetTester tester) async {
     final store = MockStore();
-    final vaultName = "Important vault";
+    final name = "Important vault";
     final secret = "123456";
 
-    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: vaultName, secret: secret, timestep: 30);
+    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: name, secret: secret, timestep: 30);
     final Entry entry = await store.getEntry(2);
 
     await tester.pumpWidget(MainTestWidget(DeleteEntryDialog(entry: entry), store: store));
@@ -59,11 +59,11 @@ void main() {
 
   testWidgets('Delete entry callback', (WidgetTester tester) async {
     final store = MockStore();
-    final vaultName = "Redundant vault";
+    final name = "Redundant vault";
     final secret = "123456";
     var callbackCalled = false;
 
-    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: vaultName, secret: secret, timestep: 30);
+    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: name, secret: secret, timestep: 30);
     final Entry entry = await store.getEntry(2);
 
     await tester.pumpWidget(MainTestWidget(
