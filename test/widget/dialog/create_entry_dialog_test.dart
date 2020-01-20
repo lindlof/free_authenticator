@@ -99,4 +99,26 @@ void main() {
     expect(entry2.name, equals(name1));
     expect(entry2.vault, equals(vault.id));
   });
+
+  testWidgets('Create entry callback', (WidgetTester tester) async {
+    final store = MockStore();
+    final name = "Hello entry";
+    final secret = "123456";
+    var callbackCalled = false;
+
+    await tester.pumpWidget(MainTestWidget(
+      CreateEntryDialog(onCreate: (_) {
+        callbackCalled = true;
+        return Future.value();
+      }),
+      store: store
+    ));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    await tester.enterText(find.byKey(ValueKey("nameInput")), name);
+    await tester.enterText(find.byKey(ValueKey("secretInput")), secret);
+    await tester.tap(find.text("Ok"));
+
+    expect(callbackCalled, isTrue, reason: "Callback wasn't called on create");
+  });
 }

@@ -56,4 +56,27 @@ void main() {
     catch (e) { }
     expect(entryAfter, isNotNull, reason: "Entry id 2 missing after canceling deletion");
   });
+
+  testWidgets('Delete entry callback', (WidgetTester tester) async {
+    final store = MockStore();
+    final vaultName = "Redundant vault";
+    final secret = "123456";
+    var callbackCalled = false;
+
+    await store.createEntry(EntryType.totp, VaultEntry.rootId, name: vaultName, secret: secret, timestep: 30);
+    final Entry entry = await store.getEntry(2);
+
+    await tester.pumpWidget(MainTestWidget(
+      DeleteEntryDialog(entry: entry, onDelete: (_) {
+        callbackCalled = true;
+        return Future.value();
+      }),
+      store: store
+    ));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
+
+    await tester.tap(find.widgetWithText(FlatButton, "Delete"));
+
+    expect(callbackCalled, isTrue, reason: "Callback wasn't called on delete");
+  });
 }
