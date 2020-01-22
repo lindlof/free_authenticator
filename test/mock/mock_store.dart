@@ -11,9 +11,9 @@ class MockStore implements Store {
   final db = Map<int, Entry>();
 
   MockStore({int provision: 0}) {
-    db[Vault.rootId] = Vault(Vault.rootId, ROOT_VAULT_NAME, 1, null);
+    db[VaultEntry.rootId] = Vault(VaultEntry.rootId, ROOT_VAULT_NAME, 1, null);
     for (int i = 0; i < provision; i++) {
-      createEntry(EntryType.vault, Vault.rootId, name: "test entry ${i+1}");
+      createEntry(EntryType.vault, VaultEntry.rootId, name: "test entry ${i+1}");
     }
   }
 
@@ -87,7 +87,7 @@ class MockStore implements Store {
       orElse: () => null
     );
     if (gotEntry != null) return gotEntry.id;
-    return createEntry(EntryType.vault, Vault.rootId, name: name);
+    return createEntry(EntryType.vault, VaultEntry.rootId, name: name);
   }
 
   Entry _dataToEntry(EntryType type, int id, {Entry entry, String name, int position, int vault, String secret, int timeStep}) {

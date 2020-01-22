@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
-import 'package:free_authenticator/model/entry/vault.dart';
 
 import 'package:free_authenticator/widget/entry_list.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
@@ -45,7 +44,7 @@ void main() {
       .thenAnswer((invocation) {
         final Function(int) onCreate = invocation.namedArguments[Symbol("onCreate")];
         return MockDialog(onClose: () async {
-          int id = await store.createEntry(EntryType.vault, Vault.rootId, name: createdEntryName);
+          int id = await store.createEntry(EntryType.vault, VaultEntry.rootId, name: createdEntryName);
           onCreate(id);
         });
       });

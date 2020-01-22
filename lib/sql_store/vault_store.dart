@@ -1,5 +1,6 @@
 import 'package:free_authenticator/database/database_entry.dart';
 import 'package:free_authenticator/keychain/keychain_helper.dart';
+import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/sql_store/db_factory.dart';
@@ -43,18 +44,18 @@ class VaultStore {
 
   Future<Vault> _create(String name) async {
     Database db = await dbFactory.database;
-    int position = await DatabaseEntry.nextPosition(db, Vault.rootId);
+    int position = await DatabaseEntry.nextPosition(db, VaultEntry.rootId);
 
     Map<String, dynamic> data = EntryMarshal.marshalData(EntryType.vault, name: name);
     String encryptedData = await KeychainHelper.encryptJson(data);
     Map<String, dynamic> map = EntryMarshal.marshal(
-      EntryType.vault, encryptedData, position: position, vault: Vault.rootId);
+      EntryType.vault, encryptedData, position: position, vault: VaultEntry.rootId);
 
     int vaultId = await DatabaseEntry.create(db, map);
     return Vault(
       vaultId,
       name,
       position,
-      Vault.rootId);
+      VaultEntry.rootId);
   }
 }
