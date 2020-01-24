@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
-import 'package:free_authenticator/model/entry/vault.dart';
-import 'package:free_authenticator/widget/dependencies.dart';
 
 import 'package:free_authenticator/widget/entry_list.dart';
 import 'package:free_authenticator/widget/reorderable_list.dart';
-import 'package:free_authenticator/widget/store.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/mock_dialog.dart';
 import '../mock/mock_store.dart';
+import '../parentWidget/main_test_widget.dart';
 
 const int PUMP_DURATION_MS = 10;
 
@@ -21,7 +19,7 @@ void main() {
   testWidgets('Show given title', (WidgetTester tester) async {
     final store = MockStore();
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: 'title'), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: 'title'), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text('title'), findsOneWidget);
@@ -31,7 +29,7 @@ void main() {
     final store = MockStore(provision: 1);
     final Entry entry = await store.getEntry(2);
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: ''), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: ''), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(entry.name), findsOneWidget);
@@ -46,13 +44,12 @@ void main() {
       .thenAnswer((invocation) {
         final Function(int) onCreate = invocation.namedArguments[Symbol("onCreate")];
         return MockDialog(onClose: () async {
-          print("hello");
-          int id = await store.createEntry(EntryType.vault, Vault.rootId, name: createdEntryName);
+          int id = await store.createEntry(EntryType.vault, VaultEntry.rootId, name: createdEntryName);
           onCreate(id);
         });
       });
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: '', dialogs: dialogs), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(createdEntryName), findsNothing, reason: "Entry found before creation");
@@ -85,7 +82,7 @@ void main() {
         });
       });
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: '', dialogs: dialogs), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(startName), findsOneWidget, reason: "Start entry missing before edit");
@@ -118,7 +115,7 @@ void main() {
         return MockDialog(onClose: () { onDelete(entry.id); });
       });
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: '', dialogs: dialogs), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(entry.name), findsOneWidget, reason: "Missing entry to delete");
@@ -146,7 +143,7 @@ void main() {
     final Finder finder1 = find.widgetWithText(ReorderableItemSelect, entry1.name);
     final Finder finder2 = find.widgetWithText(ReorderableItemSelect, entry2.name);
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: '', dialogs: dialogs), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     final Offset offset1 = tester.getCenter(finder1);
@@ -165,7 +162,7 @@ void main() {
     expect(entryAfter1.position, equals(entry2.position), reason: "Entry not in saved to next position after dragging");
   });
 
-  testWidgets('Vault opening on tap', (WidgetTester tester) async {
+  testWidgets('Vault opening and closing', (WidgetTester tester) async {
     final store = MockStore(provision: 1);
     final dialogs = MockDialogs();
     final Entry vault = await store.getEntry(2);
@@ -173,7 +170,7 @@ void main() {
       await store.createEntry(EntryType.vault, vault.id, name: "Vaulted entry")
     );
     
-    await tester.pumpWidget(buildTestableWidget(EntryList(title: '', dialogs: dialogs), store));
+    await tester.pumpWidget(MainTestWidget(EntryList(title: '', dialogs: dialogs), store: store));
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(entry.name), findsNothing, reason: "Vaulted entry visible in main vault");
@@ -183,12 +180,12 @@ void main() {
     await tester.pump(Duration(milliseconds: PUMP_DURATION_MS));
 
     expect(find.text(entry.name), findsOneWidget, reason: "Vaulted entry not visible in test vault");
-  });
-}
 
-Widget buildTestableWidget(Widget child, Store store) {
-  return Dependencies(
-    child : MaterialApp(home: child),
-    store: store,
-  );
+    await tester.pageBack();
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS*2));
+    await tester.pump(Duration(milliseconds: PUMP_DURATION_MS*2));
+
+    expect(find.text(entry.name), findsNothing, reason: "Vaulted entry visible in main vault");
+    expect(find.text(vault.name), findsOneWidget, reason: "Test vault not visible in main vault");
+  });
 }

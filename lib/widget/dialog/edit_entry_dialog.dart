@@ -40,6 +40,7 @@ class _EditEntry extends State<EditEntryDialog> {
     var inputFields = (
       <Widget>[
             TextField(
+              key: ValueKey("nameInput"),
               controller: nameInput,
               decoration: InputDecoration(hintText: "Name"),
             ),
@@ -47,13 +48,14 @@ class _EditEntry extends State<EditEntryDialog> {
     if (this._showVaultInput()) {
       inputFields.add(
         VaultField(
+          key: ValueKey("vaultInput"),
           controller: vaultInput,
           decoration: InputDecoration(hintText: "Vault"),
           entry: this.widget.entry,
         ));
     }
     return AlertDialog(
-      title: Text('Enter a secret'),
+      title: Text('Editing'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: inputFields,

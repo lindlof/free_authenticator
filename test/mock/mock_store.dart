@@ -11,14 +11,17 @@ class MockStore implements Store {
   final db = Map<int, Entry>();
 
   MockStore({int provision: 0}) {
-    db[Vault.rootId] = Vault(Vault.rootId, ROOT_VAULT_NAME, 1, null);
+    db[VaultEntry.rootId] = Vault(VaultEntry.rootId, ROOT_VAULT_NAME, 1, null);
     for (int i = 0; i < provision; i++) {
-      createEntry(EntryType.vault, Vault.rootId, name: "test entry ${i+1}");
+      createEntry(EntryType.vault, VaultEntry.rootId, name: "test entry ${i+1}");
     }
   }
 
   @override
-  Future<Entry> getEntry(int id) async => db[id];
+  Future<Entry> getEntry(int id) async {
+    if (db.containsKey(id)) return db[id];
+    throw StateError("No entries with id " + id.toString());
+  }
 
   @override
   Future<List<Entry>> getEntries({ EntryType type, int vault, int limit, int offset: 0 }) async {
@@ -79,9 +82,12 @@ class MockStore implements Store {
 
   @override
   Future<int> getOrCreateVault(String name) async {
-    Entry gotEntry = db.values.singleWhere((e) => e.type == EntryType.vault && e.name == name);
+    Entry gotEntry = db.values.singleWhere(
+      (e) => e.type == EntryType.vault && e.name == name,
+      orElse: () => null
+    );
     if (gotEntry != null) return gotEntry.id;
-    return createEntry(EntryType.vault, Vault.rootId, name: name);
+    return createEntry(EntryType.vault, VaultEntry.rootId, name: name);
   }
 
   Entry _dataToEntry(EntryType type, int id, {Entry entry, String name, int position, int vault, String secret, int timeStep}) {
