@@ -1,5 +1,5 @@
 import 'package:free_authenticator/database/database_entry.dart';
-import 'package:free_authenticator/keychain/keychain_helper.dart';
+import 'package:free_authenticator/keychain/keychain_provider.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/sql_store/db_provider.dart';
@@ -8,29 +8,31 @@ import 'package:sqflite/sqlite_api.dart';
 import 'entry_marshal.dart';
 
 class EntryStore {
-  DbProvider dbProvider;
+  DbProvider _dbProvider;
+  KeychainProvider _keychainProvider;
 
-  EntryStore(DbProvider dbProvider) {
-    this.dbProvider = dbProvider;
+  EntryStore(DbProvider dbProvider, KeychainProvider keychainProvider) {
+    this._dbProvider = dbProvider;
+    this._keychainProvider = keychainProvider;
   }
 
   Future<Entry> get(int id) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     List<Map<String, dynamic>> entries = await DatabaseEntry.get(db, [id]);
     if (entries.isEmpty) {
       throw StateError("No entries with id " + id.toString());
     }
-    return EntryMarshal.unmarshal(entries[0]);
+    return EntryMarshal.unmarshal(entries[0], _keychainProvider.decryptJson);
   }
 
   Future<int> create(
       EntryType type, int vault,
       {String name, String secret, int timestep}
     ) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     int position = await DatabaseEntry.nextPosition(db, vault);
     Map<String, dynamic> data = EntryMarshal.marshalData(type, name: name, secret: secret, timestep: timestep);
-    String encryptedData = await KeychainHelper.encryptJson(data);
+    String encryptedData = await _keychainProvider.encryptJson(data);
 
     Map<String, dynamic> map = EntryMarshal.marshal(type, encryptedData, position: position, vault: vault);
     int id = await DatabaseEntry.create(db, map);
@@ -38,7 +40,7 @@ class EntryStore {
   }
 
   Future<List<Entry>> getEntries({ EntryType type, int vault, int limit, int offset }) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     List<Entry> rEntries = [];
     List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(
       db,
@@ -48,7 +50,9 @@ class EntryStore {
       offset: offset
     );
     if (entries.isNotEmpty) {
-      var fEntries = entries.map((e) => EntryMarshal.unmarshal(e)).toList(growable: true);
+      var fEntries = entries
+        .map((e) => EntryMarshal.unmarshal(e, _keychainProvider.decryptJson))
+        .toList(growable: true);
       rEntries.addAll(await Future.wait(fEntries));
     }
     return rEntries;
@@ -58,12 +62,12 @@ class EntryStore {
       Entry entry,
       {int position, int vault, String name, String secret, int timestep}
     ) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     Map<String, dynamic> data = EntryMarshal.marshalData(
       entry.type,
       name: name, secret: secret, timestep: timestep, entry: entry
     );
-    var encryptedData = await KeychainHelper.encryptJson(data);
+    var encryptedData = await _keychainProvider.encryptJson(data);
 
     if (vault != null && vault != entry.vault) {
       position = await DatabaseEntry.nextPosition(db, vault);
@@ -75,17 +79,17 @@ class EntryStore {
   }
 
   Future<void> delete(int id) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     await DatabaseEntry.delete(db, id);
   }
 
   Future<void> reorder(int id, int position) async {
-    Database db = await dbProvider.database;
+    Database db = await _dbProvider.database;
     final entry = await this.get(id);
     if (position == entry.position) return;
 
     Map<String, dynamic> data = EntryMarshal.marshalData(entry.type, entry: entry);
-    var encryptedData = await KeychainHelper.encryptJson(data);
+    var encryptedData = await _keychainProvider.encryptJson(data);
     Map<String, dynamic> map = EntryMarshal.marshal(
       entry.type, encryptedData, position: position, entry: entry);
 

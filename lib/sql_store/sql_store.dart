@@ -1,3 +1,4 @@
+import 'package:free_authenticator/keychain/keychain_provider.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/widget/store.dart';
@@ -11,9 +12,10 @@ class SqlStore implements Store {
   VaultStore _vaultStore;
 
   SqlStore() {
-    final dbProvider = DbProvider();
-    this._entryStore = EntryStore(dbProvider);
-    this._vaultStore = VaultStore(dbProvider);
+    final keychainProvider = KeychainProvider();
+    final dbProvider = DbProvider(keychainProvider);
+    this._entryStore = EntryStore(dbProvider, keychainProvider);
+    this._vaultStore = VaultStore(dbProvider, keychainProvider);
   }
 
   @override

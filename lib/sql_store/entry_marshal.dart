@@ -1,5 +1,4 @@
 import 'package:free_authenticator/database/database_entry.dart';
-import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/entry/totp.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/model/api/entry.dart';
@@ -44,7 +43,10 @@ class EntryMarshal {
     return data;
   }
 
-  static Future<Entry> unmarshal(Map<String, dynamic> map) async {
+  static Future<Entry> unmarshal(
+      Map<String, dynamic> map,
+      Future<Map<String, dynamic>> decryptJson(String encrypted)
+    ) async {
     print("Entry from map: " + map.toString());
     EntryType type = typeId.keys.firstWhere(
       (k) => typeId[k] == map[DatabaseEntry.columnType]);
@@ -53,7 +55,7 @@ class EntryMarshal {
     int position = map[DatabaseEntry.columnPosition];
     int vault = map[DatabaseEntry.columnVault];
 
-    Map data = await KeychainHelper.decryptJson(map[DatabaseEntry.columnData]);
+    Map data = await decryptJson(map[DatabaseEntry.columnData]);
     var name = data[_name];
     if (name == null) name = "Decryption error";
     final secret = data[_secret];
