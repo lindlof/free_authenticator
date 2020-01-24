@@ -31,10 +31,8 @@ class EntryStore {
     ) async {
     Database db = await _dbProvider.database;
     int position = await DatabaseEntry.nextPosition(db, vault);
-    Map<String, dynamic> data = EntryMarshal.marshalData(type, name: name, secret: secret, timestep: timestep);
-    String encryptedData = await _keychainProvider.encryptJson(data);
-
-    Map<String, dynamic> map = EntryMarshal.marshal(type, encryptedData, position: position, vault: vault);
+    Map<String, dynamic> map = await EntryMarshal.marshal(type, _keychainProvider.encryptJson,
+      position: position, vault: vault, name: name, secret: secret, timestep: timestep);
     int id = await DatabaseEntry.create(db, map);
     return id;
   }
@@ -63,18 +61,13 @@ class EntryStore {
       {int position, int vault, String name, String secret, int timestep}
     ) async {
     Database db = await _dbProvider.database;
-    Map<String, dynamic> data = EntryMarshal.marshalData(
-      entry.type,
-      name: name, secret: secret, timestep: timestep, entry: entry
-    );
-    var encryptedData = await _keychainProvider.encryptJson(data);
 
     if (vault != null && vault != entry.vault) {
       position = await DatabaseEntry.nextPosition(db, vault);
     }
 
-    Map<String, dynamic> map = EntryMarshal.marshal(
-      entry.type, encryptedData, position: position, vault: vault, entry: entry);
+    Map<String, dynamic> map = await EntryMarshal.marshal(entry.type, _keychainProvider.encryptJson,
+      position: position, vault: vault, name: name, secret: secret, timestep: timestep, entry: entry);
     await DatabaseEntry.update(db, entry.id, map);
   }
 
@@ -88,10 +81,8 @@ class EntryStore {
     final entry = await this.get(id);
     if (position == entry.position) return;
 
-    Map<String, dynamic> data = EntryMarshal.marshalData(entry.type, entry: entry);
-    var encryptedData = await _keychainProvider.encryptJson(data);
-    Map<String, dynamic> map = EntryMarshal.marshal(
-      entry.type, encryptedData, position: position, entry: entry);
+    Map<String, dynamic> map = await EntryMarshal.marshal(
+      entry.type, _keychainProvider.encryptJson, position: position, entry: entry);
 
     await (db).transaction((txn) async {
       if (position < entry.position) {

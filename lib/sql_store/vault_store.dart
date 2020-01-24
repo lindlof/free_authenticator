@@ -48,10 +48,8 @@ class VaultStore {
     Database db = await _dbProvider.database;
     int position = await DatabaseEntry.nextPosition(db, VaultEntry.rootId);
 
-    Map<String, dynamic> data = EntryMarshal.marshalData(EntryType.vault, name: name);
-    String encryptedData = await _keychainProvider.encryptJson(data);
-    Map<String, dynamic> map = EntryMarshal.marshal(
-      EntryType.vault, encryptedData, position: position, vault: VaultEntry.rootId);
+    Map<String, dynamic> map = await EntryMarshal.marshal(EntryType.vault, _keychainProvider.encryptJson,
+      position: position, vault: VaultEntry.rootId, name: name);
 
     int vaultId = await DatabaseEntry.create(db, map);
     return Vault(

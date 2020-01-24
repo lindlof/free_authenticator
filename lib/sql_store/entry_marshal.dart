@@ -14,17 +14,27 @@ class EntryMarshal {
     EntryType.totp: DatabaseEntry.totpTypeId,
   };
 
-  static Map<String, dynamic> marshal(EntryType type, String data, {int position, int vault, Entry entry}) {
+  static Future<Map<String, dynamic>> marshal(
+    EntryType type,
+    Future<String> encryptJson(Map<String, dynamic> data),
+    {
+      int position, int vault,
+      String name, String secret, int timestep,
+      Entry entry
+    }) async {
+    Map<String, dynamic> data = EntryMarshal._marshalData(
+      type, name: name, secret: secret, timestep: timestep, entry: entry);
+    String encryptedData = await encryptJson(data);
     Map<String, dynamic> map = {
       DatabaseEntry.columnType : typeId[type],
-      DatabaseEntry.columnData : data,
+      DatabaseEntry.columnData : encryptedData,
       DatabaseEntry.columnPosition : _val("position", position, entry?.position),
       DatabaseEntry.columnVault : _val("vault", vault, entry?.vault),
     };
     return map;
   }
 
-  static Map<String, dynamic> marshalData(
+  static Map<String, dynamic> _marshalData(
       EntryType type,
       {String name, String secret, int timestep, Entry entry}
     ) {
