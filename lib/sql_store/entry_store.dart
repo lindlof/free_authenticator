@@ -2,20 +2,20 @@ import 'package:free_authenticator/database/database_entry.dart';
 import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
-import 'package:free_authenticator/sql_store/db_factory.dart';
+import 'package:free_authenticator/sql_store/db_provider.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import 'entry_marshal.dart';
 
 class EntryStore {
-  DbFactory dbFactory;
+  DbProvider dbProvider;
 
-  EntryStore(DbFactory dbFactory) {
-    this.dbFactory = dbFactory;
+  EntryStore(DbProvider dbProvider) {
+    this.dbProvider = dbProvider;
   }
 
   Future<Entry> get(int id) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     List<Map<String, dynamic>> entries = await DatabaseEntry.get(db, [id]);
     if (entries.isEmpty) {
       throw StateError("No entries with id " + id.toString());
@@ -27,7 +27,7 @@ class EntryStore {
       EntryType type, int vault,
       {String name, String secret, int timestep}
     ) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     int position = await DatabaseEntry.nextPosition(db, vault);
     Map<String, dynamic> data = EntryMarshal.marshalData(type, name: name, secret: secret, timestep: timestep);
     String encryptedData = await KeychainHelper.encryptJson(data);
@@ -38,7 +38,7 @@ class EntryStore {
   }
 
   Future<List<Entry>> getEntries({ EntryType type, int vault, int limit, int offset }) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     List<Entry> rEntries = [];
     List<Map<String, dynamic>> entries = await DatabaseEntry.getEntries(
       db,
@@ -58,7 +58,7 @@ class EntryStore {
       Entry entry,
       {int position, int vault, String name, String secret, int timestep}
     ) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     Map<String, dynamic> data = EntryMarshal.marshalData(
       entry.type,
       name: name, secret: secret, timestep: timestep, entry: entry
@@ -75,12 +75,12 @@ class EntryStore {
   }
 
   Future<void> delete(int id) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     await DatabaseEntry.delete(db, id);
   }
 
   Future<void> reorder(int id, int position) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     final entry = await this.get(id);
     if (position == entry.position) return;
 

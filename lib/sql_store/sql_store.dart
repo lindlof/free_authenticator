@@ -2,7 +2,7 @@ import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
 import 'package:free_authenticator/widget/store.dart';
 
-import 'db_factory.dart';
+import 'db_provider.dart';
 import 'entry_store.dart';
 import 'vault_store.dart';
 
@@ -11,9 +11,9 @@ class SqlStore implements Store {
   VaultStore _vaultStore;
 
   SqlStore() {
-    final dbFactory = DbFactory();
-    this._entryStore = EntryStore(dbFactory);
-    this._vaultStore = VaultStore(dbFactory);
+    final dbProvider = DbProvider();
+    this._entryStore = EntryStore(dbProvider);
+    this._vaultStore = VaultStore(dbProvider);
   }
 
   @override

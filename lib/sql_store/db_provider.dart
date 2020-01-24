@@ -4,7 +4,7 @@ import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:sqflite/sqlite_api.dart';
 
-class DbFactory {
+class DbProvider {
   Database _database;
 
   Future<Database> get database async {

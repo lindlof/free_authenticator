@@ -3,16 +3,16 @@ import 'package:free_authenticator/keychain/keychain_helper.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
-import 'package:free_authenticator/sql_store/db_factory.dart';
+import 'package:free_authenticator/sql_store/db_provider.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import 'entry_marshal.dart';
 
 class VaultStore {
-  DbFactory dbFactory;
+  DbProvider dbProvider;
 
-  VaultStore(DbFactory dbFactory) {
-    this.dbFactory = dbFactory;
+  VaultStore(DbProvider dbProvider) {
+    this.dbProvider = dbProvider;
   }
 
   Future<int> getOrCreate(String name) async {
@@ -22,7 +22,7 @@ class VaultStore {
   }
 
   Future<Vault> _getName(String name) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     String columnData = DatabaseEntry.columnData;
     List<Map<String, dynamic>> vaults = await DatabaseEntry.getByType(db, DatabaseEntry.vaultTypeId);
     print("vaults " + vaults.toString());
@@ -43,7 +43,7 @@ class VaultStore {
   }
 
   Future<Vault> _create(String name) async {
-    Database db = await dbFactory.database;
+    Database db = await dbProvider.database;
     int position = await DatabaseEntry.nextPosition(db, VaultEntry.rootId);
 
     Map<String, dynamic> data = EntryMarshal.marshalData(EntryType.vault, name: name);
