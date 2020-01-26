@@ -23,9 +23,23 @@ void main() {
       });
 
     final provider = DatabaseProvider(keychain, dependencies: dependencies);
-    Database providedDatabase = await provider.database;
+    expect(await provider.database, equals(database));
+  });
 
-    expect(providedDatabase, equals(database));
+  testWidgets('Caches database', (WidgetTester tester) async {
+    final database = MockDatabase();
+    final keychain = MockKeychainProvider();
+    final dependencies = MockDeps();
+
+    when(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
+      .thenAnswer((invocation) async {
+        return database;
+      });
+
+    final provider = DatabaseProvider(keychain, dependencies: dependencies);
+    expect(await provider.database, equals(database));
+    expect(await provider.database, equals(database));
+    verify(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate"))).called(1);
   });
 
   testWidgets('Database creation', (WidgetTester tester) async {

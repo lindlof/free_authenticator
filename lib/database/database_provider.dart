@@ -16,8 +16,7 @@ class DatabaseProvider {
       { DatabaseProviderDeps dependencies: const DatabaseProviderDeps() }
     ) :
     this._keychainProvider = keychainProvider,
-    this._dependencies = dependencies
-    { this._database = dependencies.getDatabase(); }
+    this._dependencies = dependencies;
 
   Database _database;
 
@@ -77,9 +76,5 @@ class DatabaseProviderDeps {
 
   Future<Database> openDatabase(String path, {int version, Function(Database, int) onCreate}) {
     return sqflite.openDatabase(path, version: version, onCreate: onCreate);
-  }
-
-  Database getDatabase() {
-    return null;
   }
 }
