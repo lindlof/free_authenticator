@@ -12,7 +12,7 @@ class MockDeps extends Mock implements DatabaseProviderDeps {}
 
 void main() {
 
-  testWidgets('Provides database', (WidgetTester tester) async {
+  test('Provides database', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
     final dependencies = MockDeps();
@@ -26,7 +26,7 @@ void main() {
     expect(await provider.database, equals(database));
   });
 
-  testWidgets('Caches database', (WidgetTester tester) async {
+  test('Caches database', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
     final dependencies = MockDeps();
@@ -42,7 +42,7 @@ void main() {
     verify(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate"))).called(1);
   });
 
-  testWidgets('Database creation', (WidgetTester tester) async {
+  test('Database creation', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
     final dependencies = MockDeps();

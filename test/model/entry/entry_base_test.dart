@@ -9,13 +9,13 @@ class EntryImpl extends EntryBase {
 }
 
 void main() {
-  testWidgets('Implements required interfaces', (WidgetTester tester) async {
+  test('Implements required interfaces', () async {
     final vault = EntryImpl(EntryType.vault, 2, "name", 1, 1);
 
     expect(vault, isA<Entry>());
   });
 
-  testWidgets('Returns correct values', (WidgetTester tester) async {
+  test('Returns correct values', () async {
     final vault = EntryImpl(EntryType.vault, 88, "name", 85, 53);
 
     expect(vault.type, equals(EntryType.vault));
