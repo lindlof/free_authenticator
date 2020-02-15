@@ -8,53 +8,53 @@ import 'package:sqflite/sqlite_api.dart';
 
 class MockDatabase extends Mock implements Database {}
 class MockKeychainProvider extends Mock implements KeychainProvider {}
-class MockDeps extends Mock implements DatabaseProviderDeps {}
+class MockConf extends Mock implements Config {}
 
 void main() {
 
   test('Provides database', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
-    final dependencies = MockDeps();
+    final config = MockConf();
 
-    when(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
+    when(config.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
       .thenAnswer((invocation) async {
         return database;
       });
 
-    final provider = DatabaseProvider(keychain, dependencies: dependencies);
+    final provider = DatabaseProvider(keychain, config: config);
     expect(await provider.database, equals(database));
   });
 
   test('Caches database', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
-    final dependencies = MockDeps();
+    final config = MockConf();
 
-    when(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
+    when(config.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
       .thenAnswer((invocation) async {
         return database;
       });
 
-    final provider = DatabaseProvider(keychain, dependencies: dependencies);
+    final provider = DatabaseProvider(keychain, config: config);
     expect(await provider.database, equals(database));
     expect(await provider.database, equals(database));
-    verify(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate"))).called(1);
+    verify(config.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate"))).called(1);
   });
 
   test('Database creation', () async {
     final database = MockDatabase();
     final keychain = MockKeychainProvider();
-    final dependencies = MockDeps();
+    final config = MockConf();
 
-    when(dependencies.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
+    when(config.openDatabase(any, version: anyNamed("version"), onCreate: anyNamed("onCreate")))
       .thenAnswer((invocation) async {
         Function(Database, int) onCreate = invocation.namedArguments[Symbol("onCreate")];
         await onCreate(database, 1);
         return database;
       });
 
-    final provider = DatabaseProvider(keychain, dependencies: dependencies);
+    final provider = DatabaseProvider(keychain, config: config);
     await provider.database;
 
     verify(database.execute(argThat(contains('CREATE TABLE ${DatabaseEntry.table}'))));

@@ -9,21 +9,21 @@ class DatabaseProvider {
   static final _databaseVersion = 1;
 
   final KeychainProvider _keychainProvider;
-  final DatabaseProviderDeps _dependencies;
+  final Config _config;
 
   DatabaseProvider(
       KeychainProvider keychainProvider,
-      { DatabaseProviderDeps dependencies: const DatabaseProviderDeps() }
+      { Config config: const Config() }
     ) :
     this._keychainProvider = keychainProvider,
-    this._dependencies = dependencies;
+    this._config = config;
 
   Database _database;
 
   Future<Database> get database async {
     if (_database != null) return _database;
     // lazily instantiate the db the first time it is accessed
-    _database = await this._dependencies.openDatabase(_databaseName,
+    _database = await this._config.openDatabase(_databaseName,
         version: _databaseVersion,
         onCreate: this._create);
     return _database;
@@ -71,8 +71,8 @@ class DatabaseProvider {
   }
 }
 
-class DatabaseProviderDeps {
-  const DatabaseProviderDeps();
+class Config {
+  const Config();
 
   Future<Database> openDatabase(String path, {int version, Function(Database, int) onCreate}) {
     return sqflite.openDatabase(path, version: version, onCreate: onCreate);
