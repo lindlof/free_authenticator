@@ -1,18 +1,18 @@
 import 'package:free_authenticator/database/database_entry.dart';
+import 'package:free_authenticator/database/database_provider.dart';
 import 'package:free_authenticator/keychain/keychain_provider.dart';
 import 'package:free_authenticator/model/api/entry.dart';
 import 'package:free_authenticator/model/entry/vault.dart';
 import 'package:free_authenticator/model/api/entry_type.dart';
-import 'package:free_authenticator/sql_store/db_provider.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 import 'entry_marshal.dart';
 
 class VaultStore {
-  DbProvider _dbProvider;
+  DatabaseProvider _dbProvider;
   KeychainProvider _keychainProvider;
 
-  VaultStore(DbProvider dbProvider, KeychainProvider keychainProvider) {
+  VaultStore(DatabaseProvider dbProvider, KeychainProvider keychainProvider) {
     this._dbProvider = dbProvider;
     this._keychainProvider = keychainProvider;
   }
